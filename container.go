@@ -11,8 +11,9 @@ import (
 )
 
 type Container struct {
-	Image string
-	id    string
+	Image   string `validate:"required"`
+	Command []string
+	id      string
 }
 
 func (c *Container) Start(ctx context.Context) error {
