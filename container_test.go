@@ -13,41 +13,41 @@ import (
 
 const image = "docker.io/library/traefik:1.7.34"
 
-func TestPod_Run(t *testing.T) {
-	ctx, pod := setup(t)
+func TestContainer_Start(t *testing.T) {
+	ctx, container := setup(t)
 
-	t.Cleanup(func() { _ = pod.Delete(ctx) })
+	t.Cleanup(func() { _ = container.Delete(ctx) })
 
-	err := pod.Run(ctx)
+	err := container.Start(ctx)
 	require.NoError(t, err)
 
-	data, err := containers.Inspect(ctx, pod.Name, nil)
+	data, err := containers.Inspect(ctx, container.id, nil)
 	require.NoError(t, err)
 
-	assert.Equal(t, pod.Name, data.Name)
-	assert.Equal(t, pod.Image, data.ImageName)
+	assert.Equal(t, container.id, data.ID)
+	assert.Equal(t, container.Image, data.ImageName)
 	assert.False(t, data.State.Dead)
 }
 
-func TestPod_Delete(t *testing.T) {
-	ctx, pod := setup(t)
+func TestContainer_Delete(t *testing.T) {
+	ctx, container := setup(t)
 
-	err := pod.Run(ctx)
+	err := container.Start(ctx)
 	require.NoError(t, err)
 
-	exists, err := containers.Exists(ctx, pod.Name, false)
+	exists, err := containers.Exists(ctx, container.id, false)
 	require.NoError(t, err)
 	assert.True(t, exists)
 
-	err = pod.Delete(ctx)
+	err = container.Delete(ctx)
 	require.NoError(t, err)
 
-	exists, err = containers.Exists(ctx, pod.Name, false)
+	exists, err = containers.Exists(ctx, container.id, false)
 	require.NoError(t, err)
 	assert.False(t, exists)
 }
 
-func setup(t *testing.T) (context.Context, Pod) {
+func setup(t *testing.T) (context.Context, Container) {
 	t.Helper()
 
 	socket := "unix:" + os.Getenv("XDG_RUNTIME_DIR") + "/podman/podman.sock"
@@ -55,8 +55,5 @@ func setup(t *testing.T) (context.Context, Pod) {
 	ctx, err := bindings.NewConnection(context.Background(), socket)
 	require.NoError(t, err)
 
-	return ctx, Pod{
-		Name:  t.Name(),
-		Image: image,
-	}
+	return ctx, Container{Image: image}
 }
