@@ -1,6 +1,11 @@
 package tau
 
-import "github.com/BurntSushi/toml"
+import (
+	"context"
+
+	"github.com/BurntSushi/toml"
+	"github.com/hashicorp/go-multierror"
+)
 
 type Pod struct {
 	Kind       string      `validate:"required,eq=pod"`
@@ -20,4 +25,24 @@ func NewPod(data []byte) (pod Pod, err error) {
 	}
 
 	return pod, nil
+}
+
+func (p Pod) Deploy(ctx context.Context) error {
+	for _, container := range p.Containers {
+		err := container.Start(ctx)
+		if err != nil {
+			_ = p.Destroy(ctx)
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (p Pod) Destroy(ctx context.Context) (err error) {
+	for _, container := range p.Containers {
+		err = multierror.Append(err, container.Delete(ctx))
+	}
+
+	return err
 }

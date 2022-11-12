@@ -6,6 +6,7 @@ require (
 	github.com/BurntSushi/toml v1.2.1
 	github.com/containers/podman/v2 v2.2.1
 	github.com/go-playground/validator/v10 v10.11.1
+	github.com/hashicorp/go-multierror v1.1.1
 	github.com/sirupsen/logrus v1.7.0
 	github.com/stretchr/testify v1.8.1
 )
@@ -52,7 +53,6 @@ require (
 	github.com/gorilla/mux v1.8.0 // indirect
 	github.com/gorilla/schema v1.2.0 // indirect
 	github.com/hashicorp/errwrap v1.0.0 // indirect
-	github.com/hashicorp/go-multierror v1.1.0 // indirect
 	github.com/hashicorp/golang-lru v0.5.1 // indirect
 	github.com/hpcloud/tail v1.0.0 // indirect
 	github.com/imdario/mergo v0.3.11 // indirect
