@@ -1,8 +1,6 @@
 package tau
 
 import (
-	"context"
-
 	"github.com/BurntSushi/toml"
 	"github.com/hashicorp/go-multierror"
 )
@@ -27,11 +25,11 @@ func NewPod(data []byte) (pod Pod, err error) {
 	return pod, nil
 }
 
-func (p Pod) Deploy(ctx context.Context) error {
+func (p Pod) Create(runtime ContainerRuntime) error {
 	for _, container := range p.Containers {
-		err := container.Start(ctx)
+		err := container.Start(runtime)
 		if err != nil {
-			_ = p.Destroy(ctx)
+			_ = p.Delete(runtime)
 			return err
 		}
 	}
@@ -39,9 +37,9 @@ func (p Pod) Deploy(ctx context.Context) error {
 	return nil
 }
 
-func (p Pod) Destroy(ctx context.Context) (err error) {
+func (p Pod) Delete(runtime ContainerRuntime) (err error) {
 	for _, container := range p.Containers {
-		err = multierror.Append(err, container.Delete(ctx))
+		err = multierror.Append(err, container.Remove(runtime))
 	}
 
 	return err
