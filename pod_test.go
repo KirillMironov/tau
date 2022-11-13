@@ -1,47 +1,51 @@
-package tau
+package tau_test
 
 import (
+	"errors"
 	"testing"
 
-	"github.com/stretchr/testify/assert"
+	"github.com/KirillMironov/tau"
+	"github.com/KirillMironov/tau/mock"
+	"github.com/golang/mock/gomock"
+	"github.com/hashicorp/go-multierror"
 	"github.com/stretchr/testify/require"
 )
 
-func TestNewPod(t *testing.T) {
+func TestPod_Create(t *testing.T) {
 	var (
-		blob = []byte(`
-			kind = "pod"
-			name = "busybox"
-			
-			[[containers]]
-			image = "docker.io/library/busybox:latest"
-			command = ["sleep", "1000"]
-			
-			[[containers]]
-			image = "docker.io/library/busybox:latest"
-			command = ["sleep", "500"]
-		`)
-		expected = Pod{
-			Kind: "pod",
-			Name: "busybox",
-			Containers: []Container{
-				{
-					Image:   "docker.io/library/busybox:latest",
-					Command: []string{"sleep", "1000"},
-				},
-				{
-					Image:   "docker.io/library/busybox:latest",
-					Command: []string{"sleep", "500"},
-				},
-			},
+		pod = tau.Pod{
+			Containers: make([]tau.Container, 2),
 		}
+
+		ctrl    = gomock.NewController(t)
+		runtime = mock.NewMockContainerRuntime(ctrl)
 	)
 
-	pod, err := NewPod(blob)
-	require.NoError(t, err)
-	assert.Equal(t, expected, pod)
+	gomock.InOrder(
+		runtime.EXPECT().Start(tau.Container{}).Return("", errors.New("error")).Times(1),
+		runtime.EXPECT().Remove(gomock.Any()).Times(2),
+	)
 
-	pod, err = NewPod(nil)
+	err := pod.Create(runtime)
 	require.Error(t, err)
-	assert.Empty(t, pod)
+}
+
+func TestPod_Delete(t *testing.T) {
+	var (
+		pod = tau.Pod{
+			Containers: make([]tau.Container, 2),
+		}
+
+		ctrl    = gomock.NewController(t)
+		runtime = mock.NewMockContainerRuntime(ctrl)
+	)
+
+	runtime.EXPECT().Remove(gomock.Any()).Return(errors.New("error")).Times(2)
+
+	err := pod.Delete(runtime)
+	require.Error(t, err)
+
+	e, ok := err.(*multierror.Error)
+	require.True(t, ok)
+	require.Len(t, e.Errors, 2)
 }

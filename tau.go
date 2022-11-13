@@ -1,3 +1,5 @@
+//go:generate mockgen -destination=mock/tau.go -package=mock . ContainerRuntime
+
 package tau
 
 import (
@@ -13,6 +15,7 @@ type (
 	Resource interface {
 		Create(ContainerRuntime) error
 		Delete(ContainerRuntime) error
+		Validate() error
 	}
 
 	ContainerRuntime interface {

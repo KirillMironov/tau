@@ -3,9 +3,9 @@ module github.com/KirillMironov/tau
 go 1.19
 
 require (
-	github.com/BurntSushi/toml v1.2.1
 	github.com/containers/podman/v2 v2.2.1
 	github.com/go-playground/validator/v10 v10.11.1
+	github.com/golang/mock v1.3.1
 	github.com/hashicorp/go-multierror v1.1.1
 	github.com/sirupsen/logrus v1.7.0
 	github.com/stretchr/testify v1.8.1
@@ -13,6 +13,7 @@ require (
 
 require (
 	github.com/Azure/go-ansiterm v0.0.0-20170929234023-d6e3b3328b78 // indirect
+	github.com/BurntSushi/toml v0.3.1 // indirect
 	github.com/Microsoft/go-winio v0.4.15 // indirect
 	github.com/Microsoft/hcsshim v0.8.9 // indirect
 	github.com/VividCortex/ewma v1.1.1 // indirect
