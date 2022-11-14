@@ -1,11 +1,11 @@
-package tau_test
+package resource
 
 import (
 	"errors"
 	"testing"
 
 	"github.com/KirillMironov/tau"
-	"github.com/KirillMironov/tau/mock"
+	"github.com/KirillMironov/tau/pkg/mock"
 	"github.com/golang/mock/gomock"
 	"github.com/hashicorp/go-multierror"
 	"github.com/stretchr/testify/require"
@@ -13,7 +13,7 @@ import (
 
 func TestPod_Create(t *testing.T) {
 	var (
-		pod = tau.Pod{
+		pod = Pod{
 			Containers: make([]tau.Container, 2),
 		}
 
@@ -32,7 +32,7 @@ func TestPod_Create(t *testing.T) {
 
 func TestPod_Delete(t *testing.T) {
 	var (
-		pod = tau.Pod{
+		pod = Pod{
 			Containers: make([]tau.Container, 2),
 		}
 

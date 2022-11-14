@@ -1,21 +1,17 @@
-//go:generate mockgen -destination=mock/tau.go -package=mock . ContainerRuntime
+//go:generate mockgen -destination=pkg/mock/tau.go -package=mock . ContainerRuntime
 
 package tau
 
 import (
 	"io"
 
-	"github.com/go-playground/validator/v10"
 	"github.com/sirupsen/logrus"
 )
-
-var validate = validator.New()
 
 type (
 	Resource interface {
 		Create(ContainerRuntime) error
 		Delete(ContainerRuntime) error
-		Validate() error
 	}
 
 	ContainerRuntime interface {
