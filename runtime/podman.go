@@ -3,6 +3,7 @@ package runtime
 import (
 	"context"
 	"errors"
+	"os"
 
 	"github.com/KirillMironov/tau"
 	"github.com/containers/podman/v2/pkg/bindings"
@@ -62,4 +63,8 @@ func (p Podman) Remove(containerId string) error {
 
 	volumes := true
 	return containers.Remove(p.ctx, containerId, nil, &volumes)
+}
+
+func PodmanRootlessSocket() string {
+	return "unix://" + os.Getenv("XDG_RUNTIME_DIR") + "/podman/podman.sock"
 }

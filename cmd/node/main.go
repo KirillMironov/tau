@@ -1,11 +1,9 @@
 package main
 
 import (
-	"github.com/KirillMironov/tau/runtime"
-	"os"
-
 	"github.com/KirillMironov/tau"
 	"github.com/KirillMironov/tau/internal/service"
+	"github.com/KirillMironov/tau/runtime"
 	"github.com/sirupsen/logrus"
 )
 
@@ -19,9 +17,7 @@ func main() {
 	})
 
 	// Runtime
-	socket := "unix:" + os.Getenv("XDG_RUNTIME_DIR") + "/podman/podman.sock"
-
-	podmanRuntime, err := runtime.NewPodman(socket)
+	podmanRuntime, err := runtime.NewPodman(runtime.PodmanRootlessSocket())
 	if err != nil {
 		logger.Fatal(err)
 	}

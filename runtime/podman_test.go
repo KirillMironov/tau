@@ -3,7 +3,6 @@
 package runtime
 
 import (
-	"os"
 	"testing"
 
 	"github.com/KirillMironov/tau"
@@ -66,9 +65,7 @@ func TestPodman_Remove(t *testing.T) {
 func setup(t *testing.T) *Podman {
 	t.Helper()
 
-	socket := "unix:" + os.Getenv("XDG_RUNTIME_DIR") + "/podman/podman.sock"
-
-	podman, err := NewPodman(socket)
+	podman, err := NewPodman(PodmanRootlessSocket())
 	require.NoError(t, err)
 
 	return podman
