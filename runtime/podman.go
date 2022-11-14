@@ -25,27 +25,29 @@ func NewPodman(socket string) (*Podman, error) {
 	return &Podman{ctx: ctx}, nil
 }
 
-func (p Podman) Start(container tau.Container) (string, error) {
+func (p Podman) Start(container *tau.Container) error {
 	_, err := images.Pull(p.ctx, container.Image, entities.ImagePullOptions{Quiet: true})
 	if err != nil {
-		return "", err
+		return err
 	}
 
 	spec := specgen.NewSpecGenerator(container.Image, false)
 
 	response, err := containers.CreateWithSpec(p.ctx, spec)
 	if err != nil {
-		return "", err
+		return err
 	}
 
 	containerId := response.ID
 
 	err = containers.Start(p.ctx, containerId, nil)
 	if err != nil {
-		return "", err
+		return err
 	}
 
-	return containerId, nil
+	container.SetId(containerId)
+
+	return nil
 }
 
 func (p Podman) Remove(containerId string) error {

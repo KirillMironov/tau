@@ -13,45 +13,50 @@ import (
 const image = "docker.io/library/traefik:1.7.34"
 
 func TestPodman_Start(t *testing.T) {
+	t.Parallel()
+
 	var (
-		container = tau.Container{
+		container = &tau.Container{
 			Image: image,
 		}
 		runtime = setup(t)
 	)
 
-	containerId, err := runtime.Start(container)
+	err := runtime.Start(container)
+	require.NoError(t, err)
+	assert.NotZero(t, container.Id())
+
+	t.Cleanup(func() { _ = runtime.Remove(container.Id()) })
+
+	data, err := containers.Inspect(runtime.ctx, container.Id(), nil)
 	require.NoError(t, err)
 
-	t.Cleanup(func() { _ = runtime.Remove(containerId) })
-
-	data, err := containers.Inspect(runtime.ctx, containerId, nil)
-	require.NoError(t, err)
-
-	assert.Equal(t, containerId, data.ID)
+	assert.Equal(t, container.Id(), data.ID)
 	assert.Equal(t, container.Image, data.ImageName)
 	assert.False(t, data.State.Dead)
 }
 
 func TestPodman_Remove(t *testing.T) {
+	t.Parallel()
+
 	var (
-		container = tau.Container{
+		container = &tau.Container{
 			Image: image,
 		}
 		runtime = setup(t)
 	)
 
-	containerId, err := runtime.Start(container)
+	err := runtime.Start(container)
 	require.NoError(t, err)
 
-	exists, err := containers.Exists(runtime.ctx, containerId, false)
+	exists, err := containers.Exists(runtime.ctx, container.Id(), false)
 	require.NoError(t, err)
 	assert.True(t, exists)
 
-	err = runtime.Remove(containerId)
+	err = runtime.Remove(container.Id())
 	require.NoError(t, err)
 
-	exists, err = containers.Exists(runtime.ctx, containerId, false)
+	exists, err = containers.Exists(runtime.ctx, container.Id(), false)
 	require.NoError(t, err)
 	assert.False(t, exists)
 }

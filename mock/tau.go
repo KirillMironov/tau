@@ -49,12 +49,11 @@ func (mr *MockContainerRuntimeMockRecorder) Remove(arg0 interface{}) *gomock.Cal
 }
 
 // Start mocks base method.
-func (m *MockContainerRuntime) Start(arg0 tau.Container) (string, error) {
+func (m *MockContainerRuntime) Start(arg0 *tau.Container) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Start", arg0)
-	ret0, _ := ret[0].(string)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
+	ret0, _ := ret[0].(error)
+	return ret0
 }
 
 // Start indicates an expected call of Start.

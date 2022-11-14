@@ -1,29 +1,15 @@
 package tau
 
 type Container struct {
-	Id      string `toml:"-"`
 	Image   string `validate:"required"`
 	Command []string
+	id      string
 }
 
-func (c *Container) Start(runtime ContainerRuntime) error {
-	containerId, err := runtime.Start(*c)
-	if err != nil {
-		return err
-	}
-
-	c.Id = containerId
-
-	return nil
+func (c *Container) Id() string {
+	return c.id
 }
 
-func (c *Container) Remove(runtime ContainerRuntime) error {
-	err := runtime.Remove(c.Id)
-	if err != nil {
-		return err
-	}
-
-	c.Id = ""
-
-	return nil
+func (c *Container) SetId(id string) {
+	c.id = id
 }

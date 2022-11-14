@@ -10,7 +10,7 @@ type Pod struct {
 
 func (p Pod) Create(runtime ContainerRuntime) error {
 	for _, container := range p.Containers {
-		err := container.Start(runtime)
+		err := runtime.Start(&container)
 		if err != nil {
 			_ = p.Delete(runtime)
 			return err
@@ -22,7 +22,7 @@ func (p Pod) Create(runtime ContainerRuntime) error {
 
 func (p Pod) Delete(runtime ContainerRuntime) (err error) {
 	for _, container := range p.Containers {
-		err = multierror.Append(err, container.Remove(runtime))
+		err = multierror.Append(err, runtime.Remove(container.Id()))
 	}
 
 	return err

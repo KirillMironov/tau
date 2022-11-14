@@ -22,7 +22,7 @@ func TestPod_Create(t *testing.T) {
 	)
 
 	gomock.InOrder(
-		runtime.EXPECT().Start(tau.Container{}).Return("", errors.New("error")).Times(1),
+		runtime.EXPECT().Start(&tau.Container{}).Return(errors.New("error")).Times(1),
 		runtime.EXPECT().Remove(gomock.Any()).Times(2),
 	)
 

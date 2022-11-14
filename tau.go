@@ -19,7 +19,7 @@ type (
 	}
 
 	ContainerRuntime interface {
-		Start(Container) (containerId string, _ error)
+		Start(*Container) error
 		Remove(containerId string) error
 	}
 )
