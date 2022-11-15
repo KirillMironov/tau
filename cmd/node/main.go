@@ -1,10 +1,15 @@
 package main
 
 import (
+	"net"
+
 	"github.com/KirillMironov/tau"
+	"github.com/KirillMironov/tau/api"
 	"github.com/KirillMironov/tau/internal/service"
+	"github.com/KirillMironov/tau/internal/transport"
 	"github.com/KirillMironov/tau/runtime"
 	"github.com/sirupsen/logrus"
+	"google.golang.org/grpc"
 )
 
 func main() {
@@ -27,7 +32,22 @@ func main() {
 	removeCh := make(chan tau.Resource)
 
 	deployer := service.NewDeployer(createCh, removeCh, podmanRuntime, logger)
+	resources := transport.NewResources(createCh, removeCh)
 
 	// Node
 	go deployer.Start()
+
+	// gRPC server
+	listener, err := net.Listen("tcp", ":8080")
+	if err != nil {
+		logger.Fatal(err)
+	}
+
+	server := grpc.NewServer()
+	server.RegisterService(&api.Resources_ServiceDesc, resources)
+
+	err = server.Serve(listener)
+	if err != nil {
+		logger.Fatal(err)
+	}
 }

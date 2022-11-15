@@ -7,5 +7,9 @@ test-integration:
 generate:
 	go generate ./...
 
+proto:
+	protoc --go_out=./api --go-grpc_out=require_unimplemented_servers=false:./api ./api/resources.proto
+	go mod tidy
+
 lint:
 	golangci-lint run
