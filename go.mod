@@ -3,7 +3,7 @@ module github.com/KirillMironov/tau
 go 1.19
 
 require (
-	github.com/BurntSushi/toml v0.3.1
+	github.com/BurntSushi/toml v1.2.1
 	github.com/containers/podman/v2 v2.2.1
 	github.com/go-playground/validator/v10 v10.11.1
 	github.com/golang/mock v1.3.1
