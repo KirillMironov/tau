@@ -3,24 +3,17 @@ package api;
 option go_package = "./;api";
 
 service Resources {
-  rpc Create(CreateRequest) returns (CreateResponse) {}
-  rpc Remove(RemoveRequest) returns (RemoveResponse) {}
+  rpc Create(Request) returns (Response) {}
+  rpc Remove(Request) returns (Response) {}
 }
 
 enum Kind {
   POD = 0;
 }
 
-message CreateRequest {
+message Request {
   Kind kind = 1;
   bytes data = 2;
 }
 
-message CreateResponse {}
-
-message RemoveRequest {
-  Kind kind = 1;
-  bytes data = 2;
-}
-
-message RemoveResponse {}
+message Response {}

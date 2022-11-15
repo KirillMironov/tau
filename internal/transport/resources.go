@@ -21,7 +21,7 @@ func NewResources(createCh, removeCh chan<- tau.Resource) *Resources {
 	}
 }
 
-func (r Resources) Create(_ context.Context, request *api.CreateRequest) (*api.CreateResponse, error) {
+func (r Resources) Create(_ context.Context, request *api.Request) (*api.Response, error) {
 	var target tau.Resource
 
 	switch request.Kind {
@@ -36,10 +36,10 @@ func (r Resources) Create(_ context.Context, request *api.CreateRequest) (*api.C
 
 	r.createCh <- target
 
-	return &api.CreateResponse{}, nil
+	return &api.Response{}, nil
 }
 
-func (r Resources) Remove(_ context.Context, request *api.RemoveRequest) (*api.RemoveResponse, error) {
+func (r Resources) Remove(_ context.Context, request *api.Request) (*api.Response, error) {
 	var target tau.Resource
 
 	switch request.Kind {
@@ -54,5 +54,5 @@ func (r Resources) Remove(_ context.Context, request *api.RemoveRequest) (*api.R
 
 	r.removeCh <- target
 
-	return &api.RemoveResponse{}, nil
+	return &api.Response{}, nil
 }

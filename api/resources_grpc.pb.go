@@ -22,8 +22,8 @@ const _ = grpc.SupportPackageIsVersion7
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type ResourcesClient interface {
-	Create(ctx context.Context, in *CreateRequest, opts ...grpc.CallOption) (*CreateResponse, error)
-	Remove(ctx context.Context, in *RemoveRequest, opts ...grpc.CallOption) (*RemoveResponse, error)
+	Create(ctx context.Context, in *Request, opts ...grpc.CallOption) (*Response, error)
+	Remove(ctx context.Context, in *Request, opts ...grpc.CallOption) (*Response, error)
 }
 
 type resourcesClient struct {
@@ -34,8 +34,8 @@ func NewResourcesClient(cc grpc.ClientConnInterface) ResourcesClient {
 	return &resourcesClient{cc}
 }
 
-func (c *resourcesClient) Create(ctx context.Context, in *CreateRequest, opts ...grpc.CallOption) (*CreateResponse, error) {
-	out := new(CreateResponse)
+func (c *resourcesClient) Create(ctx context.Context, in *Request, opts ...grpc.CallOption) (*Response, error) {
+	out := new(Response)
 	err := c.cc.Invoke(ctx, "/api.Resources/Create", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -43,8 +43,8 @@ func (c *resourcesClient) Create(ctx context.Context, in *CreateRequest, opts ..
 	return out, nil
 }
 
-func (c *resourcesClient) Remove(ctx context.Context, in *RemoveRequest, opts ...grpc.CallOption) (*RemoveResponse, error) {
-	out := new(RemoveResponse)
+func (c *resourcesClient) Remove(ctx context.Context, in *Request, opts ...grpc.CallOption) (*Response, error) {
+	out := new(Response)
 	err := c.cc.Invoke(ctx, "/api.Resources/Remove", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -56,18 +56,18 @@ func (c *resourcesClient) Remove(ctx context.Context, in *RemoveRequest, opts ..
 // All implementations should embed UnimplementedResourcesServer
 // for forward compatibility
 type ResourcesServer interface {
-	Create(context.Context, *CreateRequest) (*CreateResponse, error)
-	Remove(context.Context, *RemoveRequest) (*RemoveResponse, error)
+	Create(context.Context, *Request) (*Response, error)
+	Remove(context.Context, *Request) (*Response, error)
 }
 
 // UnimplementedResourcesServer should be embedded to have forward compatible implementations.
 type UnimplementedResourcesServer struct {
 }
 
-func (UnimplementedResourcesServer) Create(context.Context, *CreateRequest) (*CreateResponse, error) {
+func (UnimplementedResourcesServer) Create(context.Context, *Request) (*Response, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Create not implemented")
 }
-func (UnimplementedResourcesServer) Remove(context.Context, *RemoveRequest) (*RemoveResponse, error) {
+func (UnimplementedResourcesServer) Remove(context.Context, *Request) (*Response, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Remove not implemented")
 }
 
@@ -83,7 +83,7 @@ func RegisterResourcesServer(s grpc.ServiceRegistrar, srv ResourcesServer) {
 }
 
 func _Resources_Create_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(CreateRequest)
+	in := new(Request)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -95,13 +95,13 @@ func _Resources_Create_Handler(srv interface{}, ctx context.Context, dec func(in
 		FullMethod: "/api.Resources/Create",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ResourcesServer).Create(ctx, req.(*CreateRequest))
+		return srv.(ResourcesServer).Create(ctx, req.(*Request))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
 func _Resources_Remove_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(RemoveRequest)
+	in := new(Request)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -113,7 +113,7 @@ func _Resources_Remove_Handler(srv interface{}, ctx context.Context, dec func(in
 		FullMethod: "/api.Resources/Remove",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ResourcesServer).Remove(ctx, req.(*RemoveRequest))
+		return srv.(ResourcesServer).Remove(ctx, req.(*Request))
 	}
 	return interceptor(ctx, in, info, handler)
 }
