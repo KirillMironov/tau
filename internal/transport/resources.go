@@ -2,6 +2,7 @@ package transport
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/BurntSushi/toml"
 	"github.com/KirillMironov/tau"
@@ -22,14 +23,7 @@ func NewResources(createCh, removeCh chan<- tau.Resource) *Resources {
 }
 
 func (r Resources) Create(_ context.Context, request *api.Request) (*api.Response, error) {
-	var target tau.Resource
-
-	switch request.Kind {
-	case api.Kind_POD:
-		target = resource.Pod{}
-	}
-
-	err := toml.Unmarshal(request.Data, &target)
+	target, err := r.resourceByKind(request.Data)
 	if err != nil {
 		return nil, err
 	}
@@ -40,14 +34,7 @@ func (r Resources) Create(_ context.Context, request *api.Request) (*api.Respons
 }
 
 func (r Resources) Remove(_ context.Context, request *api.Request) (*api.Response, error) {
-	var target tau.Resource
-
-	switch request.Kind {
-	case api.Kind_POD:
-		target = resource.Pod{}
-	}
-
-	err := toml.Unmarshal(request.Data, &target)
+	target, err := r.resourceByKind(request.Data)
 	if err != nil {
 		return nil, err
 	}
@@ -55,4 +42,24 @@ func (r Resources) Remove(_ context.Context, request *api.Request) (*api.Respons
 	r.removeCh <- target
 
 	return &api.Response{}, nil
+}
+
+func (r Resources) resourceByKind(data []byte) (target tau.Resource, _ error) {
+	var input struct {
+		Kind string
+	}
+
+	err := toml.Unmarshal(data, &input)
+	if err != nil {
+		return nil, err
+	}
+
+	switch input.Kind {
+	case resource.KindPod:
+		target = &resource.Pod{}
+	default:
+		return nil, fmt.Errorf("unexpected resource kind: %s", input.Kind)
+	}
+
+	return target, toml.Unmarshal(data, &target)
 }

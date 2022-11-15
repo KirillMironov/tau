@@ -28,11 +28,13 @@ func main() {
 	}
 
 	// DI
-	createCh := make(chan tau.Resource)
-	removeCh := make(chan tau.Resource)
+	var (
+		createCh = make(chan tau.Resource)
+		removeCh = make(chan tau.Resource)
 
-	deployer := service.NewDeployer(createCh, removeCh, podmanRuntime, logger)
-	resources := transport.NewResources(createCh, removeCh)
+		deployer  = service.NewDeployer(createCh, removeCh, podmanRuntime, logger)
+		resources = transport.NewResources(createCh, removeCh)
+	)
 
 	// Node
 	go deployer.Start()

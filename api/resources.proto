@@ -7,13 +7,8 @@ service Resources {
   rpc Remove(Request) returns (Response) {}
 }
 
-enum Kind {
-  POD = 0;
-}
-
 message Request {
-  Kind kind = 1;
-  bytes data = 2;
+  bytes data = 1;
 }
 
 message Response {}
