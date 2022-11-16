@@ -12,6 +12,8 @@ import (
 	"google.golang.org/grpc"
 )
 
+const address = ":5668"
+
 func main() {
 	// Logger
 	logger := logrus.New()
@@ -40,7 +42,7 @@ func main() {
 	go deployer.Start()
 
 	// gRPC server
-	listener, err := net.Listen("tcp", ":8080")
+	listener, err := net.Listen("tcp", address)
 	if err != nil {
 		logger.Fatal(err)
 	}

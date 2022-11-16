@@ -13,3 +13,6 @@ proto:
 
 lint:
 	golangci-lint run
+
+tau-install:
+	go install github.com/KirillMironov/tau/cmd/tau
