@@ -1,3 +1,3 @@
-package resource
+package resources
 
 const KindPod = "pod"

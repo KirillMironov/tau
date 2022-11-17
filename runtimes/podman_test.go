@@ -1,6 +1,6 @@
 //go:build integration
 
-package runtime
+package runtimes
 
 import (
 	"testing"

@@ -7,7 +7,7 @@ import (
 	"github.com/KirillMironov/tau/api"
 	"github.com/KirillMironov/tau/internal/service"
 	"github.com/KirillMironov/tau/internal/transport"
-	"github.com/KirillMironov/tau/runtime"
+	"github.com/KirillMironov/tau/runtimes"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
 )
@@ -24,7 +24,7 @@ func main() {
 	})
 
 	// Runtime
-	podmanRuntime, err := runtime.NewPodman(runtime.PodmanRootlessSocket())
+	runtime, err := runtimes.NewPodman(runtimes.PodmanRootlessSocket())
 	if err != nil {
 		logger.Fatal(err)
 	}
@@ -34,7 +34,7 @@ func main() {
 		createCh = make(chan tau.Resource)
 		removeCh = make(chan tau.Resource)
 
-		deployer  = service.NewDeployer(createCh, removeCh, podmanRuntime, logger)
+		deployer  = service.NewDeployer(createCh, removeCh, runtime, logger)
 		resources = transport.NewResources(createCh, removeCh)
 	)
 

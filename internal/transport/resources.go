@@ -7,7 +7,7 @@ import (
 	"github.com/BurntSushi/toml"
 	"github.com/KirillMironov/tau"
 	"github.com/KirillMironov/tau/api"
-	"github.com/KirillMironov/tau/resource"
+	"github.com/KirillMironov/tau/resources"
 )
 
 type Resources struct {
@@ -55,8 +55,8 @@ func (r Resources) resourceByKind(data []byte) (target tau.Resource, _ error) {
 	}
 
 	switch input.Kind {
-	case resource.KindPod:
-		target = &resource.Pod{}
+	case resources.KindPod:
+		target = &resources.Pod{}
 	default:
 		return nil, fmt.Errorf("unexpected resource kind: %s", input.Kind)
 	}
