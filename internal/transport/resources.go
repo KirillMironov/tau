@@ -2,12 +2,10 @@ package transport
 
 import (
 	"context"
-	"fmt"
 
-	"github.com/BurntSushi/toml"
 	"github.com/KirillMironov/tau"
 	"github.com/KirillMironov/tau/api"
-	"github.com/KirillMironov/tau/resources"
+	"github.com/KirillMironov/tau/api/protoconv"
 )
 
 type Resources struct {
@@ -22,44 +20,24 @@ func NewResources(createCh, removeCh chan<- tau.Resource) *Resources {
 	}
 }
 
-func (r Resources) Create(_ context.Context, request *api.Request) (*api.Response, error) {
-	target, err := r.resourceByKind(request.Data)
+func (r Resources) Create(_ context.Context, resource *api.Resource) (*api.Response, error) {
+	convertedResource, err := protoconv.ResourceFromProto(resource)
 	if err != nil {
 		return nil, err
 	}
 
-	r.createCh <- target
+	r.createCh <- convertedResource
 
 	return &api.Response{}, nil
 }
 
-func (r Resources) Remove(_ context.Context, request *api.Request) (*api.Response, error) {
-	target, err := r.resourceByKind(request.Data)
+func (r Resources) Remove(_ context.Context, resource *api.Resource) (*api.Response, error) {
+	convertedResource, err := protoconv.ResourceFromProto(resource)
 	if err != nil {
 		return nil, err
 	}
 
-	r.removeCh <- target
+	r.removeCh <- convertedResource
 
 	return &api.Response{}, nil
-}
-
-func (r Resources) resourceByKind(data []byte) (target tau.Resource, _ error) {
-	var input struct {
-		Kind string
-	}
-
-	err := toml.Unmarshal(data, &input)
-	if err != nil {
-		return nil, err
-	}
-
-	switch input.Kind {
-	case resources.KindPod:
-		target = &resources.Pod{}
-	default:
-		return nil, fmt.Errorf("unexpected resource kind: %s", input.Kind)
-	}
-
-	return target, toml.Unmarshal(data, &target)
 }

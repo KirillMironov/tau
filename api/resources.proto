@@ -3,12 +3,24 @@ package api;
 option go_package = "./;api";
 
 service Resources {
-  rpc Create(Request) returns (Response) {}
-  rpc Remove(Request) returns (Response) {}
+  rpc Create(Resource) returns (Response) {}
+  rpc Remove(Resource) returns (Response) {}
 }
 
-message Request {
-  bytes data = 1;
+message Resource {
+  oneof kind {
+    Pod pod = 1;
+  }
+}
+
+message Pod {
+  string name = 1;
+  repeated Container containers = 2;
+}
+
+message Container {
+  string image = 1;
+  string command = 2;
 }
 
 message Response {}

@@ -4,6 +4,8 @@ import (
 	"os"
 
 	"github.com/KirillMironov/tau/api"
+	"github.com/KirillMironov/tau/api/protoconv"
+	"github.com/KirillMironov/tau/pkg/tomlutil"
 	"github.com/urfave/cli/v2"
 )
 
@@ -26,7 +28,17 @@ func (r resources) create() *cli.Command {
 				return err
 			}
 
-			_, err = r.client.Create(ctx.Context, &api.Request{Data: data})
+			resource, err := tomlutil.UnmarshalByKind(data)
+			if err != nil {
+				return err
+			}
+
+			protoResource, err := protoconv.ResourceToProto(resource)
+			if err != nil {
+				return err
+			}
+
+			_, err = r.client.Create(ctx.Context, protoResource)
 			return err
 		},
 		Flags: []cli.Flag{
@@ -55,7 +67,17 @@ func (r resources) remove() *cli.Command {
 				return err
 			}
 
-			_, err = r.client.Remove(ctx.Context, &api.Request{Data: data})
+			resource, err := tomlutil.UnmarshalByKind(data)
+			if err != nil {
+				return err
+			}
+
+			protoResource, err := protoconv.ResourceToProto(resource)
+			if err != nil {
+				return err
+			}
+
+			_, err = r.client.Remove(ctx.Context, protoResource)
 			return err
 		},
 		Flags: []cli.Flag{

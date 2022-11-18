@@ -6,7 +6,6 @@ import (
 )
 
 type Pod struct {
-	Kind       string          `validate:"required,eq=pod"`
 	Name       string          `validate:"required"`
 	Containers []tau.Container `validate:"required,dive"`
 }

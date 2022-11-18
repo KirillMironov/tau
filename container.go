@@ -2,7 +2,7 @@ package tau
 
 type Container struct {
 	Image   string `validate:"required"`
-	Command []string
+	Command string
 	id      string
 }
 
