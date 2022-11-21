@@ -36,6 +36,7 @@ func (p Podman) Start(container *tau.Container) error {
 
 	spec := specgen.NewSpecGenerator(container.Image, false)
 	spec.Remove = true
+	spec.Command = strings.Split(container.Command, " ")
 
 	response, err := containers.CreateWithSpec(p.ctx, spec)
 	if err != nil {
