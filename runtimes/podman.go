@@ -4,8 +4,10 @@ import (
 	"context"
 	"errors"
 	"os"
+	"strings"
 
 	"github.com/KirillMironov/tau"
+	"github.com/containers/podman/v2/libpod/define"
 	"github.com/containers/podman/v2/pkg/bindings"
 	"github.com/containers/podman/v2/pkg/bindings/containers"
 	"github.com/containers/podman/v2/pkg/bindings/images"
@@ -33,6 +35,7 @@ func (p Podman) Start(container *tau.Container) error {
 	}
 
 	spec := specgen.NewSpecGenerator(container.Image, false)
+	spec.Remove = true
 
 	response, err := containers.CreateWithSpec(p.ctx, spec)
 	if err != nil {
@@ -62,7 +65,13 @@ func (p Podman) Remove(containerId string) error {
 	}
 
 	volumes := true
-	return containers.Remove(p.ctx, containerId, nil, &volumes)
+
+	err = containers.Remove(p.ctx, containerId, nil, &volumes)
+	if err != nil && !strings.HasSuffix(err.Error(), define.ErrNoSuchCtr.Error()) {
+		return err
+	}
+
+	return nil
 }
 
 func PodmanRootlessSocket() string {
