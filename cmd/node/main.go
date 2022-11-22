@@ -28,7 +28,7 @@ func main() {
 	})
 
 	// BadgerDB
-	db, err := badger.Open(badger.DefaultOptions("./badger.db"))
+	db, err := badger.Open(badger.DefaultOptions("./badger.db").WithLogger(nil))
 	if err != nil {
 		logger.Fatal(err)
 	}

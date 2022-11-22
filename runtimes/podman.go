@@ -51,7 +51,7 @@ func (p Podman) Start(container *tau.Container) error {
 		return err
 	}
 
-	container.SetId(containerId)
+	container.Id = containerId
 
 	return nil
 }

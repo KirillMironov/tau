@@ -29,7 +29,7 @@ func (p Pod) Create(runtime tau.ContainerRuntime) error {
 
 func (p Pod) Delete(runtime tau.ContainerRuntime) (err error) {
 	for _, container := range p.Containers {
-		err = multierror.Append(err, runtime.Remove(container.Id()))
+		err = multierror.Append(err, runtime.Remove(container.Id))
 	}
 
 	return err
