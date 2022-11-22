@@ -18,6 +18,7 @@ const address = ":5668"
 func main() {
 	// Logger
 	logger := logrus.New()
+	logger.SetLevel(logrus.DebugLevel)
 	logger.SetFormatter(&logrus.TextFormatter{
 		ForceColors:     true,
 		FullTimestamp:   true,
@@ -35,12 +36,14 @@ func main() {
 		createCh = make(chan tau.Resource)
 		removeCh = make(chan tau.Resource)
 
-		deployer  = service.NewDeployer(createCh, removeCh, runtime, logger)
-		resources = transport.NewResources(createCh, removeCh)
+		deployer  = service.NewDeployer(runtime)
+		resources = service.NewResources(createCh, removeCh, deployer, logger)
+
+		resourcesServer = transport.NewResources(createCh, removeCh)
 	)
 
 	// Node
-	go deployer.Start()
+	go resources.Start()
 
 	// gRPC server
 	listener, err := net.Listen("tcp", address)
@@ -49,7 +52,7 @@ func main() {
 	}
 
 	server := grpc.NewServer()
-	server.RegisterService(&api.Resources_ServiceDesc, resources)
+	server.RegisterService(&api.Resources_ServiceDesc, resourcesServer)
 
 	err = server.Serve(listener)
 	if err != nil {
