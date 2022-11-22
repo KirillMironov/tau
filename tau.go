@@ -10,6 +10,7 @@ import (
 
 type (
 	Resource interface {
+		Id() string
 		Create(ContainerRuntime) error
 		Delete(ContainerRuntime) error
 	}

@@ -3,12 +3,14 @@ package main
 import (
 	"net"
 
+	"github.com/dgraph-io/badger/v3"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
 
 	"github.com/KirillMironov/tau"
 	"github.com/KirillMironov/tau/api"
 	"github.com/KirillMironov/tau/internal/service"
+	"github.com/KirillMironov/tau/internal/storage"
 	"github.com/KirillMironov/tau/internal/transport"
 	"github.com/KirillMironov/tau/runtimes"
 )
@@ -25,6 +27,13 @@ func main() {
 		TimestampFormat: "01|02 15:04:05.000",
 	})
 
+	// BadgerDB
+	db, err := badger.Open(badger.DefaultOptions("./badger.db"))
+	if err != nil {
+		logger.Fatal(err)
+	}
+	defer db.Close()
+
 	// Runtime
 	runtime, err := runtimes.NewPodman(runtimes.PodmanRootlessSocket())
 	if err != nil {
@@ -36,9 +45,14 @@ func main() {
 		createCh = make(chan tau.Resource)
 		removeCh = make(chan tau.Resource)
 
-		deployer  = service.NewDeployer(runtime)
-		resources = service.NewResources(createCh, removeCh, deployer, logger)
+		// storage
+		resourcesStorage = storage.NewResources(db)
 
+		// service
+		deployer  = service.NewDeployer(runtime)
+		resources = service.NewResources(createCh, removeCh, resourcesStorage, deployer, logger)
+
+		// transport
 		resourcesServer = transport.NewResources(createCh, removeCh)
 	)
 

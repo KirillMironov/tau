@@ -11,6 +11,10 @@ type Pod struct {
 	Containers []tau.Container `validate:"required,dive"`
 }
 
+func (p Pod) Id() string {
+	return p.Name
+}
+
 func (p Pod) Create(runtime tau.ContainerRuntime) error {
 	for _, container := range p.Containers {
 		err := runtime.Start(&container)
