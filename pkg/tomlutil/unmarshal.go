@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/BurntSushi/toml"
+
 	"github.com/KirillMironov/tau"
 	"github.com/KirillMironov/tau/resources"
 )

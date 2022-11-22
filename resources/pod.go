@@ -1,8 +1,9 @@
 package resources
 
 import (
-	"github.com/KirillMironov/tau"
 	"github.com/hashicorp/go-multierror"
+
+	"github.com/KirillMironov/tau"
 )
 
 type Pod struct {

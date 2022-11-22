@@ -3,10 +3,11 @@ package main
 import (
 	"os"
 
+	"github.com/urfave/cli/v2"
+
 	"github.com/KirillMironov/tau/api"
 	"github.com/KirillMironov/tau/api/protoconv"
 	"github.com/KirillMironov/tau/pkg/tomlutil"
-	"github.com/urfave/cli/v2"
 )
 
 type resources struct {

@@ -4,11 +4,12 @@ import (
 	"errors"
 	"testing"
 
-	"github.com/KirillMironov/tau"
-	"github.com/KirillMironov/tau/pkg/mock"
 	"github.com/golang/mock/gomock"
 	"github.com/hashicorp/go-multierror"
 	"github.com/stretchr/testify/require"
+
+	"github.com/KirillMironov/tau"
+	"github.com/KirillMironov/tau/pkg/mock"
 )
 
 func TestPod_Create(t *testing.T) {

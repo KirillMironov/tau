@@ -5,10 +5,11 @@ package runtimes
 import (
 	"testing"
 
-	"github.com/KirillMironov/tau"
 	"github.com/containers/podman/v2/pkg/bindings/containers"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+
+	"github.com/KirillMironov/tau"
 )
 
 const image = "docker.io/library/traefik:1.7.34"

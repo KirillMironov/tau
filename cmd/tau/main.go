@@ -3,11 +3,12 @@ package main
 import (
 	"os"
 
-	"github.com/KirillMironov/tau/api"
-	"github.com/KirillMironov/tau/pkg/cmdutil"
 	"github.com/urfave/cli/v2"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
+
+	"github.com/KirillMironov/tau/api"
+	"github.com/KirillMironov/tau/pkg/cmdutil"
 )
 
 const serverAddress = ":5668"

@@ -6,13 +6,14 @@ import (
 	"os"
 	"strings"
 
-	"github.com/KirillMironov/tau"
 	"github.com/containers/podman/v2/libpod/define"
 	"github.com/containers/podman/v2/pkg/bindings"
 	"github.com/containers/podman/v2/pkg/bindings/containers"
 	"github.com/containers/podman/v2/pkg/bindings/images"
 	"github.com/containers/podman/v2/pkg/domain/entities"
 	"github.com/containers/podman/v2/pkg/specgen"
+
+	"github.com/KirillMironov/tau"
 )
 
 type Podman struct {

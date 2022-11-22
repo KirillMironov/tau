@@ -3,9 +3,10 @@ package service
 import (
 	"fmt"
 
+	"github.com/go-playground/validator/v10"
+
 	"github.com/KirillMironov/tau"
 	"github.com/KirillMironov/tau/pkg/logger"
-	"github.com/go-playground/validator/v10"
 )
 
 type Deployer struct {

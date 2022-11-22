@@ -3,10 +3,11 @@ package tomlutil
 import (
 	"testing"
 
-	"github.com/KirillMironov/tau"
-	"github.com/KirillMironov/tau/resources"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+
+	"github.com/KirillMironov/tau"
+	"github.com/KirillMironov/tau/resources"
 )
 
 func TestUnmarshalByKind(t *testing.T) {

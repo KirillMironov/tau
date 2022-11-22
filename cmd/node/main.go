@@ -3,13 +3,14 @@ package main
 import (
 	"net"
 
+	"github.com/sirupsen/logrus"
+	"google.golang.org/grpc"
+
 	"github.com/KirillMironov/tau"
 	"github.com/KirillMironov/tau/api"
 	"github.com/KirillMironov/tau/internal/service"
 	"github.com/KirillMironov/tau/internal/transport"
 	"github.com/KirillMironov/tau/runtimes"
-	"github.com/sirupsen/logrus"
-	"google.golang.org/grpc"
 )
 
 const address = ":5668"
