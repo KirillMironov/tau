@@ -6,7 +6,7 @@ import (
 
 	"github.com/dgraph-io/badger/v3"
 
-	"github.com/KirillMironov/tau"
+	"github.com/KirillMironov/tau/resources"
 )
 
 type Resources struct {
@@ -17,7 +17,7 @@ func NewResources(db *badger.DB) *Resources {
 	return &Resources{db: db}
 }
 
-func (r Resources) Create(resource tau.Resource) error {
+func (r Resources) Create(resource resources.Resource) error {
 	return r.db.Update(func(txn *badger.Txn) error {
 		var buf bytes.Buffer
 
@@ -26,11 +26,11 @@ func (r Resources) Create(resource tau.Resource) error {
 			return err
 		}
 
-		return txn.Set([]byte(resource.Id()), buf.Bytes())
+		return txn.Set([]byte(resource.ID()), buf.Bytes())
 	})
 }
 
-func (r Resources) GetById(id string) (resource tau.Resource, _ error) {
+func (r Resources) GetById(id string) (resource resources.Resource, _ error) {
 	return resource, r.db.View(func(txn *badger.Txn) error {
 		item, err := txn.Get([]byte(id))
 		if err != nil {

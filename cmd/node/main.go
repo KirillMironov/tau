@@ -7,11 +7,11 @@ import (
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
 
-	"github.com/KirillMironov/tau"
 	"github.com/KirillMironov/tau/api"
 	"github.com/KirillMironov/tau/internal/service"
 	"github.com/KirillMironov/tau/internal/storage"
 	"github.com/KirillMironov/tau/internal/transport"
+	"github.com/KirillMironov/tau/resources"
 	"github.com/KirillMironov/tau/runtimes"
 )
 
@@ -42,22 +42,22 @@ func main() {
 
 	// DI
 	var (
-		createCh = make(chan tau.Resource)
-		removeCh = make(chan tau.Resource)
+		createCh = make(chan resources.Resource)
+		removeCh = make(chan resources.Resource)
 
 		// storage
 		resourcesStorage = storage.NewResources(db)
 
 		// service
-		deployer  = service.NewDeployer(runtime)
-		resources = service.NewResources(createCh, removeCh, resourcesStorage, deployer, logger)
+		deployer         = service.NewDeployer(runtime)
+		resourcesService = service.NewResources(createCh, removeCh, resourcesStorage, deployer, logger)
 
 		// transport
-		resourcesServer = transport.NewResources(createCh, removeCh)
+		resourcesHandler = transport.NewResources(createCh, removeCh)
 	)
 
 	// Node
-	go resources.Start()
+	go resourcesService.Start()
 
 	// gRPC server
 	listener, err := net.Listen("tcp", address)
@@ -66,7 +66,7 @@ func main() {
 	}
 
 	server := grpc.NewServer()
-	server.RegisterService(&api.Resources_ServiceDesc, resourcesServer)
+	server.RegisterService(&api.Resources_ServiceDesc, resourcesHandler)
 
 	err = server.Serve(listener)
 	if err != nil {

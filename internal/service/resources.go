@@ -3,13 +3,13 @@ package service
 import (
 	"fmt"
 
-	"github.com/KirillMironov/tau"
 	"github.com/KirillMironov/tau/pkg/logger"
+	"github.com/KirillMironov/tau/resources"
 )
 
 type Resources struct {
-	createCh <-chan tau.Resource
-	removeCh <-chan tau.Resource
+	createCh <-chan resources.Resource
+	removeCh <-chan resources.Resource
 	storage  storage
 	deployer deployer
 	logger   logger.Logger
@@ -17,17 +17,17 @@ type Resources struct {
 
 type (
 	storage interface {
-		Create(tau.Resource) error
-		GetById(id string) (tau.Resource, error)
+		Create(resources.Resource) error
+		GetById(id string) (resources.Resource, error)
 		Delete(id string) error
 	}
 	deployer interface {
-		Create(tau.Resource) error
-		Remove(tau.Resource) error
+		Create(resources.Resource) error
+		Remove(resources.Resource) error
 	}
 )
 
-func NewResources(createCh, removeCh <-chan tau.Resource, storage storage, deployer deployer,
+func NewResources(createCh, removeCh <-chan resources.Resource, storage storage, deployer deployer,
 	logger logger.Logger) *Resources {
 	return &Resources{
 		createCh: createCh,
@@ -59,7 +59,7 @@ func (r Resources) Start() {
 	}
 }
 
-func (r Resources) create(resource tau.Resource) error {
+func (r Resources) create(resource resources.Resource) error {
 	err := r.storage.Create(resource)
 	if err != nil {
 		return fmt.Errorf("failed to create resource: %w", err)
@@ -68,8 +68,8 @@ func (r Resources) create(resource tau.Resource) error {
 	return r.deployer.Create(resource)
 }
 
-func (r Resources) remove(resource tau.Resource) error {
-	err := r.storage.Delete(resource.Id())
+func (r Resources) remove(resource resources.Resource) error {
+	err := r.storage.Delete(resource.ID())
 	if err != nil {
 		return fmt.Errorf("failed to delete resource: %w", err)
 	}

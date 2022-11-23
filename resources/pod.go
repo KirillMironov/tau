@@ -1,23 +1,40 @@
 package resources
 
 import (
+	"errors"
+
 	"github.com/hashicorp/go-multierror"
 
-	"github.com/KirillMironov/tau"
+	"github.com/KirillMironov/tau/runtimes"
 )
 
 type Pod struct {
-	Name       string          `validate:"required"`
-	Containers []tau.Container `validate:"required,dive"`
+	Name       string
+	Containers []Container
 }
 
-func (p Pod) Id() string {
+func (p Pod) ID() string {
 	return p.Name
 }
 
-func (p Pod) Create(runtime tau.ContainerRuntime) error {
+func (p Pod) Validate() error {
+	if p.Name == "" {
+		return errors.New("name is required")
+	}
+
 	for _, container := range p.Containers {
-		err := runtime.Start(&container)
+		err := container.Validate()
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (p Pod) Create(runtime runtimes.Runtime) error {
+	for _, container := range p.Containers {
+		err := runtime.Start(runtimes.Container(container))
 		if err != nil {
 			_ = p.Delete(runtime)
 			return err
@@ -27,9 +44,9 @@ func (p Pod) Create(runtime tau.ContainerRuntime) error {
 	return nil
 }
 
-func (p Pod) Delete(runtime tau.ContainerRuntime) (err error) {
+func (p Pod) Delete(runtime runtimes.Runtime) (err error) {
 	for _, container := range p.Containers {
-		err = multierror.Append(err, runtime.Remove(container.Id))
+		err = multierror.Append(err, runtime.Remove(container.ID()))
 	}
 
 	return err

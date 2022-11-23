@@ -1,3 +1,6 @@
 package resources
 
-const KindPod = "pod"
+const (
+	KindContainer = "container"
+	KindPod       = "pod"
+)

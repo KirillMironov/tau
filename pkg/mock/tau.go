@@ -7,7 +7,7 @@ package mock
 import (
 	reflect "reflect"
 
-	tau "github.com/KirillMironov/tau"
+	runtimes "github.com/KirillMironov/tau/runtimes"
 	gomock "github.com/golang/mock/gomock"
 )
 
@@ -49,7 +49,7 @@ func (mr *MockContainerRuntimeMockRecorder) Remove(arg0 interface{}) *gomock.Cal
 }
 
 // Start mocks base method.
-func (m *MockContainerRuntime) Start(arg0 *tau.Container) error {
+func (m *MockContainerRuntime) Start(arg0 runtimes.Container) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Start", arg0)
 	ret0, _ := ret[0].(error)

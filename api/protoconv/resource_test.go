@@ -6,60 +6,101 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/KirillMironov/tau"
 	"github.com/KirillMironov/tau/api"
 	"github.com/KirillMironov/tau/resources"
 )
 
-func TestResourceFromProto(t *testing.T) {
-	resource, protoResource := testResources()
+func TestResourceFromProto_Container(t *testing.T) {
+	container, _, protoContainer, _ := testResources()
 
-	converted, err := ResourceFromProto(protoResource)
+	resource, err := ResourceFromProto(protoContainer)
 	require.NoError(t, err)
-	assert.Equal(t, resource, converted)
+	assert.Equal(t, container, resource)
 
-	converted, err = ResourceFromProto(nil)
+	resource, err = ResourceFromProto(nil)
 	require.Error(t, err)
-	assert.Nil(t, converted)
+	assert.Nil(t, resource)
 }
 
-func TestResourceToProto(t *testing.T) {
-	resource, protoResource := testResources()
+func TestResourceFromProto_Pod(t *testing.T) {
+	_, pod, _, protoPod := testResources()
 
-	converted, err := ResourceToProto(resource)
+	resource, err := ResourceFromProto(protoPod)
 	require.NoError(t, err)
-	assert.Equal(t, protoResource, converted)
+	assert.Equal(t, pod, resource)
 
-	converted, err = ResourceToProto(&resource)
-	require.NoError(t, err)
-	assert.Equal(t, protoResource, converted)
-
-	converted, err = ResourceToProto(nil)
+	resource, err = ResourceFromProto(nil)
 	require.Error(t, err)
-	assert.Nil(t, converted)
+	assert.Nil(t, resource)
 }
 
-func testResources() (resources.Pod, *api.Resource) {
+func TestResourceToProto_Container(t *testing.T) {
+	container, _, protoContainer, _ := testResources()
+
+	resource, err := ResourceToProto(container)
+	require.NoError(t, err)
+	assert.Equal(t, protoContainer, resource)
+
+	resource, err = ResourceToProto(&container)
+	require.NoError(t, err)
+	assert.Equal(t, protoContainer, resource)
+
+	resource, err = ResourceToProto(nil)
+	require.Error(t, err)
+	assert.Nil(t, resource)
+}
+
+func TestResourceToProto_Pod(t *testing.T) {
+	_, pod, _, protoPod := testResources()
+
+	resource, err := ResourceToProto(pod)
+	require.NoError(t, err)
+	assert.Equal(t, protoPod, resource)
+
+	resource, err = ResourceToProto(&pod)
+	require.NoError(t, err)
+	assert.Equal(t, protoPod, resource)
+
+	resource, err = ResourceToProto(nil)
+	require.Error(t, err)
+	assert.Nil(t, resource)
+}
+
+func testResources() (resources.Container, resources.Pod, *api.Resource, *api.Resource) {
 	var (
-		resource = resources.Pod{
+		container = resources.Container{
+			Name:    "container",
+			Image:   "image",
+			Command: "command",
+		}
+		pod = resources.Pod{
 			Name: "pod",
-			Containers: []tau.Container{
-				{Image: "image", Command: "command"},
-				{Image: "image2", Command: "command2"},
+			Containers: []resources.Container{
+				{Name: "container", Image: "image", Command: "command"},
+				{Name: "container2", Image: "image2", Command: "command2"},
 			},
 		}
-		protoResource = &api.Resource{
+		protoContainer = &api.Resource{
+			Kind: &api.Resource_Container{
+				Container: &api.Container{
+					Name:    "container",
+					Image:   "image",
+					Command: "command",
+				},
+			},
+		}
+		protoPod = &api.Resource{
 			Kind: &api.Resource_Pod{
 				Pod: &api.Pod{
 					Name: "pod",
 					Containers: []*api.Container{
-						{Image: "image", Command: "command"},
-						{Image: "image2", Command: "command2"},
+						{Name: "container", Image: "image", Command: "command"},
+						{Name: "container2", Image: "image2", Command: "command2"},
 					},
 				},
 			},
 		}
 	)
 
-	return resource, protoResource
+	return container, pod, protoContainer, protoPod
 }

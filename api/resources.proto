@@ -9,18 +9,20 @@ service Resources {
 
 message Resource {
   oneof kind {
-    Pod pod = 1;
+    Container container = 1;
+    Pod pod = 2;
   }
+}
+
+message Container {
+  string name = 1;
+  string image = 2;
+  string command = 3;
 }
 
 message Pod {
   string name = 1;
   repeated Container containers = 2;
-}
-
-message Container {
-  string image = 1;
-  string command = 2;
 }
 
 message Response {}

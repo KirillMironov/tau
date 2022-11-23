@@ -3,17 +3,17 @@ package transport
 import (
 	"context"
 
-	"github.com/KirillMironov/tau"
 	"github.com/KirillMironov/tau/api"
 	"github.com/KirillMironov/tau/api/protoconv"
+	"github.com/KirillMironov/tau/resources"
 )
 
 type Resources struct {
-	createCh chan<- tau.Resource
-	removeCh chan<- tau.Resource
+	createCh chan<- resources.Resource
+	removeCh chan<- resources.Resource
 }
 
-func NewResources(createCh, removeCh chan<- tau.Resource) *Resources {
+func NewResources(createCh, removeCh chan<- resources.Resource) *Resources {
 	return &Resources{
 		createCh: createCh,
 		removeCh: removeCh,
