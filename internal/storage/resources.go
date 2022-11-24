@@ -30,7 +30,7 @@ func (r Resources) Create(resource resources.Resource) error {
 	})
 }
 
-func (r Resources) GetById(id string) (resource resources.Resource, _ error) {
+func (r Resources) GetByID(id string) (resource resources.Resource, _ error) {
 	return resource, r.db.View(func(txn *badger.Txn) error {
 		item, err := txn.Get([]byte(id))
 		if err != nil {

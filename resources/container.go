@@ -27,10 +27,10 @@ func (c Container) Validate() error {
 	}
 }
 
-func (c Container) Create(runtimes.Runtime) error {
-	return nil
+func (c Container) Create(runtime runtimes.ContainerRuntime) error {
+	return runtime.Start(runtimes.Container(c))
 }
 
-func (c Container) Delete(runtimes.Runtime) error {
-	return nil
+func (c Container) Remove(runtime runtimes.ContainerRuntime) error {
+	return runtime.Remove(c.Name)
 }

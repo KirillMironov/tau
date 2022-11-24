@@ -32,11 +32,11 @@ func (p Pod) Validate() error {
 	return nil
 }
 
-func (p Pod) Create(runtime runtimes.Runtime) error {
+func (p Pod) Create(runtime runtimes.ContainerRuntime) error {
 	for _, container := range p.Containers {
-		err := runtime.Start(runtimes.Container(container))
+		err := container.Create(runtime)
 		if err != nil {
-			_ = p.Delete(runtime)
+			_ = p.Remove(runtime)
 			return err
 		}
 	}
@@ -44,9 +44,9 @@ func (p Pod) Create(runtime runtimes.Runtime) error {
 	return nil
 }
 
-func (p Pod) Delete(runtime runtimes.Runtime) (err error) {
+func (p Pod) Remove(runtime runtimes.ContainerRuntime) (err error) {
 	for _, container := range p.Containers {
-		err = multierror.Append(err, runtime.Remove(container.ID()))
+		err = multierror.Append(err, container.Remove(runtime))
 	}
 
 	return err

@@ -1,4 +1,4 @@
-//go:generate mockgen -destination=./../pkg/mock/tau.go -package=mock . Runtime
+//go:generate mockgen -destination=./../pkg/mock/tau.go -package=mock . ContainerRuntime
 
 package runtimes
 
@@ -8,7 +8,7 @@ type Container struct {
 	Command string
 }
 
-type Runtime interface {
+type ContainerRuntime interface {
 	Start(Container) error
 	Remove(containerName string) error
 }

@@ -30,7 +30,7 @@ func TestPod_Create(t *testing.T) {
 	require.Error(t, err)
 }
 
-func TestPod_Delete(t *testing.T) {
+func TestPod_Remove(t *testing.T) {
 	pod, runtime := setup(t)
 
 	runtime.
@@ -39,7 +39,7 @@ func TestPod_Delete(t *testing.T) {
 		Return(errors.New("error")).
 		Times(2)
 
-	err := pod.Delete(runtime)
+	err := pod.Remove(runtime)
 	require.Error(t, err)
 
 	e, ok := err.(*multierror.Error)

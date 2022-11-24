@@ -3,26 +3,20 @@ package service
 import (
 	"fmt"
 
-	"github.com/go-playground/validator/v10"
-
 	"github.com/KirillMironov/tau/resources"
 	"github.com/KirillMironov/tau/runtimes"
 )
 
 type Deployer struct {
-	runtime  runtimes.Runtime
-	validate *validator.Validate
+	runtime runtimes.ContainerRuntime
 }
 
-func NewDeployer(runtime runtimes.Runtime) *Deployer {
-	return &Deployer{
-		runtime:  runtime,
-		validate: validator.New(),
-	}
+func NewDeployer(runtime runtimes.ContainerRuntime) *Deployer {
+	return &Deployer{runtime: runtime}
 }
 
 func (d Deployer) Create(resource resources.Resource) error {
-	err := d.validate.Struct(resource)
+	err := resource.Validate()
 	if err != nil {
 		return err
 	}
@@ -36,7 +30,12 @@ func (d Deployer) Create(resource resources.Resource) error {
 }
 
 func (d Deployer) Remove(resource resources.Resource) error {
-	err := resource.Delete(d.runtime)
+	err := resource.Validate()
+	if err != nil {
+		return err
+	}
+
+	err = resource.Remove(d.runtime)
 	if err != nil {
 		return fmt.Errorf("failed to remove resource: %w", err)
 	}

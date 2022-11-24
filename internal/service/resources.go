@@ -18,7 +18,7 @@ type Resources struct {
 type (
 	storage interface {
 		Create(resources.Resource) error
-		GetById(id string) (resources.Resource, error)
+		GetByID(id string) (resources.Resource, error)
 		Delete(id string) error
 	}
 	deployer interface {
