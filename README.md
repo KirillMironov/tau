@@ -1,7 +1,5 @@
 ## Container
 
-----
-
 ```toml
 kind = "container"
 name = "busybox"
@@ -9,9 +7,9 @@ image = "docker.io/library/busybox:1.35.0"
 command = "sleep 1m"
 ```
 
-## Pod
-
 ----
+
+## Pod
 
 ```toml
 kind = "pod"
