@@ -5,13 +5,13 @@ package runtimes
 import (
 	"testing"
 
-	"github.com/containers/podman/v2/pkg/bindings/containers"
+	"github.com/containers/podman/v3/pkg/bindings/containers"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
 func TestPodman_Start(t *testing.T) {
-	container, podman := setup(t)
+	container, podman := podmanSetup(t)
 
 	err := podman.Start(container)
 	require.NoError(t, err)
@@ -27,24 +27,24 @@ func TestPodman_Start(t *testing.T) {
 }
 
 func TestPodman_Remove(t *testing.T) {
-	container, podman := setup(t)
+	container, podman := podmanSetup(t)
 
 	err := podman.Start(container)
 	require.NoError(t, err)
 
-	exists, err := containers.Exists(podman.ctx, container.Name, false)
+	exists, err := containers.Exists(podman.ctx, container.Name, nil)
 	require.NoError(t, err)
-	assert.True(t, exists)
+	require.True(t, exists)
 
 	err = podman.Remove(container.Name)
 	require.NoError(t, err)
 
-	exists, err = containers.Exists(podman.ctx, container.Name, false)
+	exists, err = containers.Exists(podman.ctx, container.Name, nil)
 	require.NoError(t, err)
 	assert.False(t, exists)
 }
 
-func setup(t *testing.T) (Container, *Podman) {
+func podmanSetup(t *testing.T) (Container, *Podman) {
 	t.Helper()
 
 	container := Container{

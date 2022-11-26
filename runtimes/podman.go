@@ -2,17 +2,15 @@ package runtimes
 
 import (
 	"context"
-	"errors"
 	"io"
 	"os"
 	"strings"
 
-	"github.com/containers/podman/v2/libpod/define"
-	"github.com/containers/podman/v2/pkg/bindings"
-	"github.com/containers/podman/v2/pkg/bindings/containers"
-	"github.com/containers/podman/v2/pkg/bindings/images"
-	"github.com/containers/podman/v2/pkg/domain/entities"
-	"github.com/containers/podman/v2/pkg/specgen"
+	"github.com/containers/podman/v3/libpod/define"
+	"github.com/containers/podman/v3/pkg/bindings"
+	"github.com/containers/podman/v3/pkg/bindings/containers"
+	"github.com/containers/podman/v3/pkg/bindings/images"
+	"github.com/containers/podman/v3/pkg/specgen"
 	"github.com/sirupsen/logrus"
 )
 
@@ -35,7 +33,9 @@ func NewPodman(socket string) (*Podman, error) {
 }
 
 func (p Podman) Start(container Container) error {
-	_, err := images.Pull(p.ctx, container.Image, entities.ImagePullOptions{Quiet: true})
+	quiet := true
+
+	_, err := images.Pull(p.ctx, container.Image, &images.PullOptions{Quiet: &quiet})
 	if err != nil {
 		return err
 	}
@@ -45,7 +45,7 @@ func (p Podman) Start(container Container) error {
 	spec.Name = container.Name
 	spec.Command = strings.Split(container.Command, " ")
 
-	_, err = containers.CreateWithSpec(p.ctx, spec)
+	_, err = containers.CreateWithSpec(p.ctx, spec, nil)
 	if err != nil {
 		return err
 	}
@@ -54,10 +54,6 @@ func (p Podman) Start(container Container) error {
 }
 
 func (p Podman) Remove(containerName string) error {
-	if containerName == "" {
-		return errors.New("empty container name")
-	}
-
 	err := containers.Stop(p.ctx, containerName, nil)
 	if err != nil {
 		return err
@@ -65,7 +61,7 @@ func (p Podman) Remove(containerName string) error {
 
 	volumes := true
 
-	err = containers.Remove(p.ctx, containerName, nil, &volumes)
+	err = containers.Remove(p.ctx, containerName, &containers.RemoveOptions{Volumes: &volumes})
 	if err != nil && !strings.HasSuffix(err.Error(), define.ErrNoSuchCtr.Error()) {
 		return err
 	}
