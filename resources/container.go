@@ -16,7 +16,25 @@ func (c Container) ID() string {
 	return c.Name
 }
 
-func (c Container) Validate() error {
+func (c Container) Create(runtime runtimes.ContainerRuntime) error {
+	err := c.validate()
+	if err != nil {
+		return err
+	}
+
+	return runtime.Start(runtimes.Container(c))
+}
+
+func (c Container) Remove(runtime runtimes.ContainerRuntime) error {
+	err := c.validate()
+	if err != nil {
+		return err
+	}
+
+	return runtime.Remove(c.Name)
+}
+
+func (c Container) validate() error {
 	switch {
 	case c.Name == "":
 		return errors.New("name is required")
@@ -25,12 +43,4 @@ func (c Container) Validate() error {
 	default:
 		return nil
 	}
-}
-
-func (c Container) Create(runtime runtimes.ContainerRuntime) error {
-	return runtime.Start(runtimes.Container(c))
-}
-
-func (c Container) Remove(runtime runtimes.ContainerRuntime) error {
-	return runtime.Remove(c.Name)
 }

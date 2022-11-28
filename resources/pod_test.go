@@ -51,7 +51,13 @@ func setup(t *testing.T) (Pod, *mock.MockContainerRuntime) {
 	t.Helper()
 
 	var (
-		pod     = Pod{Containers: make([]Container, 2)}
+		pod = Pod{
+			Name: "pod",
+			Containers: []Container{
+				{Name: "1", Image: "image"},
+				{Name: "2", Image: "image"},
+			},
+		}
 		ctrl    = gomock.NewController(t)
 		runtime = mock.NewMockContainerRuntime(ctrl)
 	)

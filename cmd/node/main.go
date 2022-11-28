@@ -35,7 +35,7 @@ func main() {
 	defer db.Close()
 
 	// Runtime
-	runtime, err := runtimes.NewPodman(runtimes.PodmanRootlessSocket())
+	podman, err := runtimes.NewPodman(runtimes.PodmanRootlessSocket())
 	if err != nil {
 		logger.Fatal(err)
 	}
@@ -45,14 +45,8 @@ func main() {
 		createCh = make(chan resources.Resource)
 		removeCh = make(chan resources.Resource)
 
-		// storage
 		resourcesStorage = storage.NewResources(db)
-
-		// service
-		deployer         = service.NewDeployer(runtime)
-		resourcesService = service.NewResources(createCh, removeCh, resourcesStorage, deployer, logger)
-
-		// transport
+		resourcesService = service.NewResources(createCh, removeCh, resourcesStorage, podman, logger)
 		resourcesHandler = transport.NewResources(createCh, removeCh)
 	)
 

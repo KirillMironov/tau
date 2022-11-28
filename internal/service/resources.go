@@ -5,35 +5,29 @@ import (
 
 	"github.com/KirillMironov/tau/pkg/logger"
 	"github.com/KirillMironov/tau/resources"
+	"github.com/KirillMironov/tau/runtimes"
 )
 
 type Resources struct {
 	createCh <-chan resources.Resource
 	removeCh <-chan resources.Resource
 	storage  storage
-	deployer deployer
+	runtime  runtimes.ContainerRuntime
 	logger   logger.Logger
 }
 
-type (
-	storage interface {
-		Create(resources.Resource) error
-		GetByID(id string) (resources.Resource, error)
-		Delete(id string) error
-	}
-	deployer interface {
-		Create(resources.Resource) error
-		Remove(resources.Resource) error
-	}
-)
+type storage interface {
+	Create(resources.Resource) error
+	GetByID(id string) (resources.Resource, error)
+	Delete(id string) error
+}
 
-func NewResources(createCh, removeCh <-chan resources.Resource, storage storage, deployer deployer,
-	logger logger.Logger) *Resources {
+func NewResources(createCh, removeCh <-chan resources.Resource, storage storage, runtime runtimes.ContainerRuntime, logger logger.Logger) *Resources {
 	return &Resources{
 		createCh: createCh,
 		removeCh: removeCh,
 		storage:  storage,
-		deployer: deployer,
+		runtime:  runtime,
 		logger:   logger,
 	}
 }
@@ -65,7 +59,7 @@ func (r Resources) create(resource resources.Resource) error {
 		return fmt.Errorf("failed to create resource: %w", err)
 	}
 
-	return r.deployer.Create(resource)
+	return resource.Create(r.runtime)
 }
 
 func (r Resources) remove(resource resources.Resource) error {
@@ -74,5 +68,5 @@ func (r Resources) remove(resource resources.Resource) error {
 		return fmt.Errorf("failed to delete resource: %w", err)
 	}
 
-	return r.deployer.Remove(resource)
+	return resource.Remove(r.runtime)
 }
