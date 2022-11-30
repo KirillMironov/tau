@@ -18,8 +18,8 @@ type Resources struct {
 
 type storage interface {
 	Create(resources.Resource) error
-	GetByID(id string) (resources.Resource, error)
-	Delete(id string) error
+	Get(name string, kind resources.Kind) (resources.Resource, error)
+	Delete(name string, kind resources.Kind) error
 }
 
 func NewResources(createCh, removeCh <-chan resources.Resource, storage storage, runtime runtimes.ContainerRuntime, logger logger.Logger) *Resources {
@@ -63,7 +63,7 @@ func (r Resources) create(resource resources.Resource) error {
 }
 
 func (r Resources) remove(resource resources.Resource) error {
-	err := r.storage.Delete(resource.ID())
+	err := r.storage.Delete(resource.ID(), resource.Kind())
 	if err != nil {
 		return fmt.Errorf("failed to delete resource: %w", err)
 	}

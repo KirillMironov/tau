@@ -10,7 +10,7 @@ import (
 
 func UnmarshalByKind(data []byte) (resources.Resource, error) {
 	var resource struct {
-		Kind string
+		Kind resources.Kind
 	}
 
 	err := toml.Unmarshal(data, &resource)

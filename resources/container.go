@@ -16,6 +16,10 @@ func (c Container) ID() string {
 	return c.Name
 }
 
+func (c Container) Kind() Kind {
+	return KindContainer
+}
+
 func (c Container) Create(runtime runtimes.ContainerRuntime) error {
 	err := c.validate()
 	if err != nil {

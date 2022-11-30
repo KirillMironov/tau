@@ -18,6 +18,8 @@ func NewResources(db *badger.DB) *Resources {
 }
 
 func (r Resources) Create(resource resources.Resource) error {
+	id := resource.Kind().String() + resource.ID()
+
 	return r.db.Update(func(txn *badger.Txn) error {
 		var buf bytes.Buffer
 
@@ -26,11 +28,13 @@ func (r Resources) Create(resource resources.Resource) error {
 			return err
 		}
 
-		return txn.Set([]byte(resource.ID()), buf.Bytes())
+		return txn.Set([]byte(id), buf.Bytes())
 	})
 }
 
-func (r Resources) GetByID(id string) (resource resources.Resource, _ error) {
+func (r Resources) Get(name string, kind resources.Kind) (resource resources.Resource, _ error) {
+	id := kind.String() + name
+
 	return resource, r.db.View(func(txn *badger.Txn) error {
 		item, err := txn.Get([]byte(id))
 		if err != nil {
@@ -43,7 +47,9 @@ func (r Resources) GetByID(id string) (resource resources.Resource, _ error) {
 	})
 }
 
-func (r Resources) Delete(id string) error {
+func (r Resources) Delete(name string, kind resources.Kind) error {
+	id := kind.String() + name
+
 	return r.db.Update(func(txn *badger.Txn) error {
 		return txn.Delete([]byte(id))
 	})

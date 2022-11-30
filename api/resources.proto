@@ -4,7 +4,7 @@ option go_package = "./;api";
 
 service Resources {
   rpc Create(Resource) returns (Response) {}
-  rpc Remove(Resource) returns (Response) {}
+  rpc Remove(RemoveRequest) returns (Response) {}
 }
 
 message Resource {
@@ -23,6 +23,17 @@ message Container {
 message Pod {
   string name = 1;
   repeated Container containers = 2;
+}
+
+enum Kind {
+  KIND_UNSPECIFIED = 0;
+  KIND_CONTAINER = 1;
+  KIND_POD = 2;
+}
+
+message RemoveRequest {
+  Kind kind = 1;
+  string name = 2;
 }
 
 message Response {}

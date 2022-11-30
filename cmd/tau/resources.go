@@ -73,12 +73,17 @@ func (r resources) remove() *cli.Command {
 				return err
 			}
 
-			protoResource, err := protoconv.ResourceToProto(resource)
+			kind, err := protoconv.KindToProto(resource.Kind())
 			if err != nil {
 				return err
 			}
 
-			_, err = r.client.Remove(ctx.Context, protoResource)
+			removeRequest := &api.RemoveRequest{
+				Kind: kind,
+				Name: resource.ID(),
+			}
+
+			_, err = r.client.Remove(ctx.Context, removeRequest)
 			return err
 		},
 		Flags: []cli.Flag{

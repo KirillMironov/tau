@@ -23,7 +23,7 @@ const _ = grpc.SupportPackageIsVersion7
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type ResourcesClient interface {
 	Create(ctx context.Context, in *Resource, opts ...grpc.CallOption) (*Response, error)
-	Remove(ctx context.Context, in *Resource, opts ...grpc.CallOption) (*Response, error)
+	Remove(ctx context.Context, in *RemoveRequest, opts ...grpc.CallOption) (*Response, error)
 }
 
 type resourcesClient struct {
@@ -43,7 +43,7 @@ func (c *resourcesClient) Create(ctx context.Context, in *Resource, opts ...grpc
 	return out, nil
 }
 
-func (c *resourcesClient) Remove(ctx context.Context, in *Resource, opts ...grpc.CallOption) (*Response, error) {
+func (c *resourcesClient) Remove(ctx context.Context, in *RemoveRequest, opts ...grpc.CallOption) (*Response, error) {
 	out := new(Response)
 	err := c.cc.Invoke(ctx, "/api.Resources/Remove", in, out, opts...)
 	if err != nil {
@@ -57,7 +57,7 @@ func (c *resourcesClient) Remove(ctx context.Context, in *Resource, opts ...grpc
 // for forward compatibility
 type ResourcesServer interface {
 	Create(context.Context, *Resource) (*Response, error)
-	Remove(context.Context, *Resource) (*Response, error)
+	Remove(context.Context, *RemoveRequest) (*Response, error)
 }
 
 // UnimplementedResourcesServer should be embedded to have forward compatible implementations.
@@ -67,7 +67,7 @@ type UnimplementedResourcesServer struct {
 func (UnimplementedResourcesServer) Create(context.Context, *Resource) (*Response, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Create not implemented")
 }
-func (UnimplementedResourcesServer) Remove(context.Context, *Resource) (*Response, error) {
+func (UnimplementedResourcesServer) Remove(context.Context, *RemoveRequest) (*Response, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Remove not implemented")
 }
 
@@ -101,7 +101,7 @@ func _Resources_Create_Handler(srv interface{}, ctx context.Context, dec func(in
 }
 
 func _Resources_Remove_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(Resource)
+	in := new(RemoveRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -113,7 +113,7 @@ func _Resources_Remove_Handler(srv interface{}, ctx context.Context, dec func(in
 		FullMethod: "/api.Resources/Remove",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ResourcesServer).Remove(ctx, req.(*Resource))
+		return srv.(ResourcesServer).Remove(ctx, req.(*RemoveRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }

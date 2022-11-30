@@ -17,6 +17,10 @@ func (p Pod) ID() string {
 	return p.Name
 }
 
+func (p Pod) Kind() Kind {
+	return KindPod
+}
+
 func (p Pod) Create(runtime runtimes.ContainerRuntime) error {
 	err := p.validate()
 	if err != nil {

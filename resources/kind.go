@@ -1,6 +1,12 @@
 package resources
 
 const (
-	KindContainer = "container"
-	KindPod       = "pod"
+	KindContainer Kind = "container"
+	KindPod       Kind = "pod"
 )
+
+type Kind string
+
+func (k Kind) String() string {
+	return string(k)
+}
