@@ -1,13 +1,12 @@
 package main
 
 import (
-	"os"
-
-	"github.com/urfave/cli/v2"
+	"github.com/spf13/cobra"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 
 	"github.com/KirillMironov/tau/api"
+	"github.com/KirillMironov/tau/internal/cli/resources"
 	"github.com/KirillMironov/tau/pkg/cmdutil"
 )
 
@@ -22,21 +21,28 @@ func main() {
 	defer conn.Close()
 
 	// DI
-	var (
-		resources = resources{client: api.NewResourcesClient(conn)}
-	)
+	var client = api.NewResourcesClient(conn)
 
 	// CLI
-	app := &cli.App{
-		Name:  "tau",
-		Usage: "tau is a CLI tool for managing resources",
-		Commands: []*cli.Command{
-			resources.create(),
-			resources.remove(),
+	tau := &cobra.Command{
+		Use:           "tau",
+		Short:         "tau is a CLI tool for managing resources",
+		SilenceErrors: true,
+		SilenceUsage:  true,
+		CompletionOptions: cobra.CompletionOptions{
+			DisableDefaultCmd: true,
 		},
 	}
 
-	err = app.Run(os.Args)
+	tau.AddCommand(
+		resources.NewCommand(client)...,
+	)
+
+	cmdutil.DisableFlagsSorting(tau)
+	cmdutil.HideHelpCommand(tau)
+	cmdutil.HideHelpFlags(tau)
+
+	err = tau.Execute()
 	if err != nil {
 		cmdutil.Exit(1, err)
 	}
