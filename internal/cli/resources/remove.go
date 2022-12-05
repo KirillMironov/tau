@@ -8,19 +8,27 @@ import (
 	"github.com/KirillMironov/tau/api"
 	"github.com/KirillMironov/tau/api/protoconv"
 	"github.com/KirillMironov/tau/pkg/cmdutil"
+	"github.com/KirillMironov/tau/pkg/cobrax"
 	"github.com/KirillMironov/tau/pkg/tomlutil"
 )
 
-func remove(client api.ResourcesClient) *cobra.Command {
-	var tomlFile string
+func remove(client api.ResourcesClient) *cobrax.Command {
+	return &cobrax.Command{
+		Usage:       "remove -f <file>",
+		Description: "remove a resource from a toml file",
+		Example:     "tau remove -f resource.toml",
+		Args:        cobra.NoArgs,
+		Flags: []cobrax.Flag{
+			&cobrax.StringFlag{
+				Name:     fileFlag,
+				Alias:    cmdutil.ShortFlag(fileFlag),
+				Usage:    "path to a toml file",
+				Required: true,
+			},
+		},
+		Action: func(cmd *cobra.Command, _ []string) error {
+			tomlFile := cmd.Flag(fileFlag).Value.String()
 
-	command := &cobra.Command{
-		Use:     "remove -f <file>",
-		Short:   "remove a resource",
-		Long:    "remove a resource from a toml file",
-		Example: "tau remove -f resource.toml",
-		Args:    cobra.NoArgs,
-		RunE: func(cmd *cobra.Command, _ []string) error {
 			data, err := os.ReadFile(tomlFile)
 			if err != nil {
 				return err
@@ -44,62 +52,41 @@ func remove(client api.ResourcesClient) *cobra.Command {
 			_, err = client.Remove(cmd.Context(), request)
 			return err
 		},
-	}
+		Subcommands: []*cobrax.Command{
+			{
+				Usage:       "container <name>",
+				Description: "remove a container",
+				Example:     "tau remove container busybox",
+				Args:        cobra.ExactArgs(1),
+				Action: func(cmd *cobra.Command, args []string) error {
+					containerName := args[0]
 
-	command.Flags().StringVarP(&tomlFile, fileFlag, cmdutil.ShortFlag(fileFlag), "", "path to a toml file")
+					request := &api.RemoveRequest{
+						Kind: api.Kind_KIND_CONTAINER,
+						Name: containerName,
+					}
 
-	_ = command.MarkFlagRequired(fileFlag)
+					_, err := client.Remove(cmd.Context(), request)
+					return err
+				},
+			},
+			{
+				Usage:       "pod <name>",
+				Description: "remove a pod",
+				Example:     "tau remove pod busybox",
+				Args:        cobra.ExactArgs(1),
+				Action: func(cmd *cobra.Command, args []string) error {
+					podName := args[0]
 
-	command.AddCommand(
-		removeContainer(client),
-		removePod(client),
-	)
+					request := &api.RemoveRequest{
+						Kind: api.Kind_KIND_POD,
+						Name: podName,
+					}
 
-	return command
-}
-
-func removeContainer(client api.ResourcesClient) *cobra.Command {
-	command := &cobra.Command{
-		Use:     "container <name>",
-		Short:   "remove a resource",
-		Long:    "remove a container",
-		Example: "tau remove container busybox",
-		Args:    cobra.ExactArgs(1),
-		RunE: func(cmd *cobra.Command, args []string) error {
-			containerName := args[0]
-
-			request := &api.RemoveRequest{
-				Kind: api.Kind_KIND_CONTAINER,
-				Name: containerName,
-			}
-
-			_, err := client.Remove(cmd.Context(), request)
-			return err
+					_, err := client.Remove(cmd.Context(), request)
+					return err
+				},
+			},
 		},
 	}
-
-	return command
-}
-
-func removePod(client api.ResourcesClient) *cobra.Command {
-	command := &cobra.Command{
-		Use:     "pod <name>",
-		Short:   "remove a resource",
-		Long:    "remove a pod",
-		Example: "tau remove pod busybox",
-		Args:    cobra.ExactArgs(1),
-		RunE: func(cmd *cobra.Command, args []string) error {
-			podName := args[0]
-
-			request := &api.RemoveRequest{
-				Kind: api.Kind_KIND_POD,
-				Name: podName,
-			}
-
-			_, err := client.Remove(cmd.Context(), request)
-			return err
-		},
-	}
-
-	return command
 }

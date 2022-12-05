@@ -16,7 +16,7 @@ const (
 
 func NewCommand(client api.ResourcesClient) []*cobra.Command {
 	return []*cobra.Command{
-		create(client),
-		remove(client),
+		create(client).Build(),
+		remove(client).Build(),
 	}
 }
