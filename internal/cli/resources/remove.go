@@ -7,12 +7,11 @@ import (
 
 	"github.com/KirillMironov/tau/api"
 	"github.com/KirillMironov/tau/api/protoconv"
-	"github.com/KirillMironov/tau/pkg/cmdutil"
 	"github.com/KirillMironov/tau/pkg/cobrax"
 	"github.com/KirillMironov/tau/pkg/tomlutil"
 )
 
-func remove(client api.ResourcesClient) *cobrax.Command {
+func (g Group) Remove() *cobrax.Command {
 	return &cobrax.Command{
 		Usage:       "remove -f <file>",
 		Description: "remove a resource from a toml file",
@@ -21,7 +20,6 @@ func remove(client api.ResourcesClient) *cobrax.Command {
 		Flags: []cobrax.Flag{
 			&cobrax.StringFlag{
 				Name:     fileFlag,
-				Alias:    cmdutil.ShortFlag(fileFlag),
 				Usage:    "path to a toml file",
 				Required: true,
 			},
@@ -49,7 +47,7 @@ func remove(client api.ResourcesClient) *cobrax.Command {
 				Name: resource.ID(),
 			}
 
-			_, err = client.Remove(cmd.Context(), request)
+			_, err = g.client.Remove(cmd.Context(), request)
 			return err
 		},
 		Subcommands: []*cobrax.Command{
@@ -66,7 +64,7 @@ func remove(client api.ResourcesClient) *cobrax.Command {
 						Name: containerName,
 					}
 
-					_, err := client.Remove(cmd.Context(), request)
+					_, err := g.client.Remove(cmd.Context(), request)
 					return err
 				},
 			},
@@ -83,7 +81,7 @@ func remove(client api.ResourcesClient) *cobrax.Command {
 						Name: podName,
 					}
 
-					_, err := client.Remove(cmd.Context(), request)
+					_, err := g.client.Remove(cmd.Context(), request)
 					return err
 				},
 			},

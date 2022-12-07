@@ -8,15 +8,14 @@ type Flag interface {
 
 type StringFlag struct {
 	Name     string
-	Alias    string
 	Usage    string
 	Required bool
 }
 
-func (f *StringFlag) Apply(command *cobra.Command) {
-	command.Flags().StringP(f.Name, f.Alias, "", f.Usage)
+func (f *StringFlag) Apply(cmd *cobra.Command) {
+	cmd.Flags().StringP(f.Name, shortFlag(f.Name), "", f.Usage)
 
 	if f.Required {
-		_ = command.MarkFlagRequired(f.Name)
+		_ = cmd.MarkFlagRequired(f.Name)
 	}
 }

@@ -1,13 +1,13 @@
 package main
 
 import (
-	"github.com/spf13/cobra"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 
 	"github.com/KirillMironov/tau/api"
 	"github.com/KirillMironov/tau/internal/cli/resources"
 	"github.com/KirillMironov/tau/pkg/cmdutil"
+	"github.com/KirillMironov/tau/pkg/cobrax"
 )
 
 const serverAddress = ":5668"
@@ -21,26 +21,28 @@ func main() {
 	defer conn.Close()
 
 	// DI
-	var client = api.NewResourcesClient(conn)
-
-	// CLI
-	tau := &cobra.Command{
-		Use:           "tau",
-		Short:         "tau is a CLI tool for managing resources",
-		SilenceErrors: true,
-		SilenceUsage:  true,
-		CompletionOptions: cobra.CompletionOptions{
-			DisableDefaultCmd: true,
-		},
-	}
-
-	tau.AddCommand(
-		resources.NewCommand(client)...,
+	var (
+		client = api.NewResourcesClient(conn)
+		group  = resources.NewGroup(client)
 	)
 
-	cmdutil.DisableFlagsSorting(tau)
-	cmdutil.HideHelpCommand(tau)
-	cmdutil.HideHelpFlags(tau)
+	// CLI
+	tau := &cobrax.Command{
+		Usage:       "tau",
+		Description: "tau is a CLI tool for managing resources",
+		Options: cobrax.CommandOptions{
+			SilenceErrors:       true,
+			SilenceUsage:        true,
+			DisableDefaultCmd:   true,
+			DisableFlagsSorting: true,
+			HideHelpCommand:     true,
+			HideHelpFlags:       true,
+		},
+		Subcommands: []*cobrax.Command{
+			group.Create(),
+			group.Remove(),
+		},
+	}
 
 	err = tau.Execute()
 	if err != nil {

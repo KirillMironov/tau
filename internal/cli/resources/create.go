@@ -7,12 +7,11 @@ import (
 
 	"github.com/KirillMironov/tau/api"
 	"github.com/KirillMironov/tau/api/protoconv"
-	"github.com/KirillMironov/tau/pkg/cmdutil"
 	"github.com/KirillMironov/tau/pkg/cobrax"
 	"github.com/KirillMironov/tau/pkg/tomlutil"
 )
 
-func create(client api.ResourcesClient) *cobrax.Command {
+func (g Group) Create() *cobrax.Command {
 	return &cobrax.Command{
 		Usage:       "create -f <file>",
 		Description: "create a resource from a toml file",
@@ -21,7 +20,6 @@ func create(client api.ResourcesClient) *cobrax.Command {
 		Flags: []cobrax.Flag{
 			&cobrax.StringFlag{
 				Name:     fileFlag,
-				Alias:    cmdutil.ShortFlag(fileFlag),
 				Usage:    "path to a toml file",
 				Required: true,
 			},
@@ -44,7 +42,7 @@ func create(client api.ResourcesClient) *cobrax.Command {
 				return err
 			}
 
-			_, err = client.Create(cmd.Context(), protoResource)
+			_, err = g.client.Create(cmd.Context(), protoResource)
 			return err
 		},
 		Subcommands: []*cobrax.Command{
@@ -56,19 +54,16 @@ func create(client api.ResourcesClient) *cobrax.Command {
 				Flags: []cobrax.Flag{
 					&cobrax.StringFlag{
 						Name:     nameFlag,
-						Alias:    cmdutil.ShortFlag(nameFlag),
 						Usage:    "container name",
 						Required: true,
 					},
 					&cobrax.StringFlag{
 						Name:     imageFlag,
-						Alias:    cmdutil.ShortFlag(imageFlag),
 						Usage:    "container image",
 						Required: true,
 					},
 					&cobrax.StringFlag{
 						Name:  commandFlag,
-						Alias: cmdutil.ShortFlag(commandFlag),
 						Usage: "command to run in the container",
 					},
 				},
@@ -87,7 +82,7 @@ func create(client api.ResourcesClient) *cobrax.Command {
 						},
 					}
 
-					_, err := client.Create(cmd.Context(), container)
+					_, err := g.client.Create(cmd.Context(), container)
 					return err
 				},
 			},
