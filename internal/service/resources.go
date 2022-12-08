@@ -10,19 +10,19 @@ import (
 
 type Resources struct {
 	createCh <-chan resources.Resource
-	removeCh <-chan resources.Resource
+	removeCh <-chan resources.Descriptor
 	storage  storage
 	runtime  runtimes.ContainerRuntime
 	logger   logger.Logger
 }
 
 type storage interface {
-	Create(resources.Resource) error
-	Get(name string, kind resources.Kind) (resources.Resource, error)
-	Delete(name string, kind resources.Kind) error
+	Put(resources.Resource) error
+	Get(resources.Descriptor) (resources.Resource, error)
+	Delete(resources.Descriptor) error
 }
 
-func NewResources(createCh, removeCh <-chan resources.Resource, storage storage, runtime runtimes.ContainerRuntime, logger logger.Logger) *Resources {
+func NewResources(createCh <-chan resources.Resource, removeCh <-chan resources.Descriptor, storage storage, runtime runtimes.ContainerRuntime, logger logger.Logger) *Resources {
 	return &Resources{
 		createCh: createCh,
 		removeCh: removeCh,
@@ -54,16 +54,21 @@ func (r Resources) Start() {
 }
 
 func (r Resources) create(resource resources.Resource) error {
-	err := r.storage.Create(resource)
+	err := r.storage.Put(resource)
 	if err != nil {
-		return fmt.Errorf("failed to create resource: %w", err)
+		return fmt.Errorf("failed to put resource: %w", err)
 	}
 
 	return resource.Create(r.runtime)
 }
 
-func (r Resources) remove(resource resources.Resource) error {
-	err := r.storage.Delete(resource.ID(), resource.Kind())
+func (r Resources) remove(descriptor resources.Descriptor) error {
+	resource, err := r.storage.Get(descriptor)
+	if err != nil {
+		return fmt.Errorf("failed to get resource: %w", err)
+	}
+
+	err = r.storage.Delete(descriptor)
 	if err != nil {
 		return fmt.Errorf("failed to delete resource: %w", err)
 	}

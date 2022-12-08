@@ -37,14 +37,16 @@ func (g Group) Remove() *cobrax.Command {
 				return err
 			}
 
-			kind, err := protoconv.KindToProto(resource.Kind())
+			descriptor := resource.Descriptor()
+
+			kind, err := protoconv.KindToProto(descriptor.Kind)
 			if err != nil {
 				return err
 			}
 
-			request := &api.RemoveRequest{
+			request := &api.Descriptor{
+				Name: descriptor.Name,
 				Kind: kind,
-				Name: resource.ID(),
 			}
 
 			_, err = g.client.Remove(cmd.Context(), request)
@@ -59,9 +61,9 @@ func (g Group) Remove() *cobrax.Command {
 				Action: func(cmd *cobra.Command, args []string) error {
 					containerName := args[0]
 
-					request := &api.RemoveRequest{
-						Kind: api.Kind_KIND_CONTAINER,
+					request := &api.Descriptor{
 						Name: containerName,
+						Kind: api.Kind_KIND_CONTAINER,
 					}
 
 					_, err := g.client.Remove(cmd.Context(), request)
@@ -76,9 +78,9 @@ func (g Group) Remove() *cobrax.Command {
 				Action: func(cmd *cobra.Command, args []string) error {
 					podName := args[0]
 
-					request := &api.RemoveRequest{
-						Kind: api.Kind_KIND_POD,
+					request := &api.Descriptor{
 						Name: podName,
+						Kind: api.Kind_KIND_POD,
 					}
 
 					_, err := g.client.Remove(cmd.Context(), request)

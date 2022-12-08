@@ -3,54 +3,70 @@ package storage
 import (
 	"bytes"
 	"encoding/gob"
+	"fmt"
 
-	"github.com/dgraph-io/badger/v3"
+	"github.com/boltdb/bolt"
 
 	"github.com/KirillMironov/tau/resources"
 )
 
 type Resources struct {
-	db *badger.DB
+	db *bolt.DB
 }
 
-func NewResources(db *badger.DB) *Resources {
+func NewResources(db *bolt.DB) *Resources {
 	return &Resources{db: db}
 }
 
-func (r Resources) Create(resource resources.Resource) error {
-	id := resource.Kind().String() + resource.ID()
+func (r Resources) Put(resource resources.Resource) error {
+	descriptor := resource.Descriptor()
+	kind := descriptor.Kind.String()
+	name := descriptor.Name
 
-	return r.db.Update(func(txn *badger.Txn) error {
-		var buf bytes.Buffer
-
-		err := gob.NewEncoder(&buf).Encode(resource)
+	return r.db.Update(func(tx *bolt.Tx) error {
+		bucket, err := tx.CreateBucketIfNotExists([]byte(kind))
 		if err != nil {
 			return err
 		}
 
-		return txn.Set([]byte(id), buf.Bytes())
-	})
-}
-
-func (r Resources) Get(name string, kind resources.Kind) (resource resources.Resource, _ error) {
-	id := kind.String() + name
-
-	return resource, r.db.View(func(txn *badger.Txn) error {
-		item, err := txn.Get([]byte(id))
-		if err != nil {
+		buf := new(bytes.Buffer)
+		if err = gob.NewEncoder(buf).Encode(resource); err != nil {
 			return err
 		}
 
-		return item.Value(func(val []byte) error {
-			return gob.NewDecoder(bytes.NewReader(val)).Decode(&resource)
-		})
+		return bucket.Put([]byte(name), buf.Bytes())
 	})
 }
 
-func (r Resources) Delete(name string, kind resources.Kind) error {
-	id := kind.String() + name
+func (r Resources) Get(descriptor resources.Descriptor) (resource resources.Resource, _ error) {
+	kind := descriptor.Kind.String()
+	name := descriptor.Name
 
-	return r.db.Update(func(txn *badger.Txn) error {
-		return txn.Delete([]byte(id))
+	return resource, r.db.View(func(tx *bolt.Tx) error {
+		bucket := tx.Bucket([]byte(kind))
+		if bucket == nil {
+			return fmt.Errorf("bucket %q not found", kind)
+		}
+
+		data := bucket.Get([]byte(name))
+		if data == nil {
+			return fmt.Errorf("resource with name %q not found", name)
+		}
+
+		return gob.NewDecoder(bytes.NewReader(data)).Decode(&resource)
+	})
+}
+
+func (r Resources) Delete(descriptor resources.Descriptor) error {
+	kind := descriptor.Kind.String()
+	name := descriptor.Name
+
+	return r.db.Update(func(tx *bolt.Tx) error {
+		bucket := tx.Bucket([]byte(kind))
+		if bucket == nil {
+			return fmt.Errorf("bucket %q not found", kind)
+		}
+
+		return bucket.Delete([]byte(name))
 	})
 }

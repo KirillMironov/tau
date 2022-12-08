@@ -2,8 +2,9 @@ package main
 
 import (
 	"net"
+	"time"
 
-	"github.com/dgraph-io/badger/v3"
+	"github.com/boltdb/bolt"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
 
@@ -27,8 +28,8 @@ func main() {
 		TimestampFormat: "01|02 15:04:05.000",
 	})
 
-	// BadgerDB
-	db, err := badger.Open(badger.DefaultOptions("./badger.db").WithLogger(nil))
+	// BoltDB
+	db, err := bolt.Open("tau.db", 0600, &bolt.Options{Timeout: time.Second})
 	if err != nil {
 		logger.Fatal(err)
 	}
@@ -43,7 +44,7 @@ func main() {
 	// DI
 	var (
 		createCh = make(chan resources.Resource)
-		removeCh = make(chan resources.Resource)
+		removeCh = make(chan resources.Descriptor)
 
 		resourcesStorage = storage.NewResources(db)
 		resourcesService = service.NewResources(createCh, removeCh, resourcesStorage, podman, logger)

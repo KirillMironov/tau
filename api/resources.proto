@@ -4,7 +4,7 @@ option go_package = "./;api";
 
 service Resources {
   rpc Create(Resource) returns (Response) {}
-  rpc Remove(RemoveRequest) returns (Response) {}
+  rpc Remove(Descriptor) returns (Response) {}
 }
 
 message Resource {
@@ -31,9 +31,9 @@ enum Kind {
   KIND_POD = 2;
 }
 
-message RemoveRequest {
-  Kind kind = 1;
-  string name = 2;
+message Descriptor {
+  string name = 1;
+  Kind kind = 2;
 }
 
 message Response {}

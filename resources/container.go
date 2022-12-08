@@ -12,12 +12,11 @@ type Container struct {
 	Command string
 }
 
-func (c Container) ID() string {
-	return c.Name
-}
-
-func (c Container) Kind() Kind {
-	return KindContainer
+func (c Container) Descriptor() Descriptor {
+	return Descriptor{
+		Name: c.Name,
+		Kind: KindContainer,
+	}
 }
 
 func (c Container) Create(runtime runtimes.ContainerRuntime) error {

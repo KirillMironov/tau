@@ -13,12 +13,11 @@ type Pod struct {
 	Containers []Container
 }
 
-func (p Pod) ID() string {
-	return p.Name
-}
-
-func (p Pod) Kind() Kind {
-	return KindPod
+func (p Pod) Descriptor() Descriptor {
+	return Descriptor{
+		Name: p.Name,
+		Kind: KindPod,
+	}
 }
 
 func (p Pod) Create(runtime runtimes.ContainerRuntime) error {
