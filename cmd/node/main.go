@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/boltdb/bolt"
+	"github.com/docker/docker/client"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
 
@@ -35,19 +36,22 @@ func main() {
 	}
 	defer db.Close()
 
-	// Runtime
-	podman, err := runtimes.NewPodman(runtimes.PodmanRootlessSocket())
+	// Docker client
+	dockerClient, err := client.NewClientWithOpts(client.FromEnv)
 	if err != nil {
 		logger.Fatal(err)
 	}
+	defer dockerClient.Close()
 
 	// DI
 	var (
 		createCh = make(chan resources.Resource)
 		removeCh = make(chan resources.Descriptor)
 
+		runtime = runtimes.NewDocker(dockerClient)
+
 		resourcesStorage = storage.NewResources(db)
-		resourcesService = service.NewResources(createCh, removeCh, resourcesStorage, podman, logger)
+		resourcesService = service.NewResources(createCh, removeCh, resourcesStorage, runtime, logger)
 		resourcesHandler = transport.NewResources(createCh, removeCh)
 	)
 
