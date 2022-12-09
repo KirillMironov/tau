@@ -15,6 +15,9 @@ type Resources struct {
 }
 
 func NewResources(db *bolt.DB) *Resources {
+	gob.Register(resources.Container{})
+	gob.Register(resources.Pod{})
+
 	return &Resources{db: db}
 }
 
@@ -30,7 +33,7 @@ func (r Resources) Put(resource resources.Resource) error {
 		}
 
 		buf := new(bytes.Buffer)
-		if err = gob.NewEncoder(buf).Encode(resource); err != nil {
+		if err = gob.NewEncoder(buf).Encode(&resource); err != nil {
 			return err
 		}
 
