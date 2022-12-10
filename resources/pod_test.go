@@ -47,6 +47,37 @@ func TestPod_Remove(t *testing.T) {
 	require.Len(t, e.Errors, 2)
 }
 
+func TestPodGob(t *testing.T) {
+	var (
+		pod = Pod{
+			Name: "name",
+			Containers: []Container{
+				{
+					Name:    "name-1",
+					Image:   "image-1",
+					Command: "command-2",
+					status:  Status{State: StateRunning},
+				},
+				{
+					Name:   "name-2",
+					Image:  "image-2",
+					status: Status{State: StatePending},
+				},
+			},
+			status: Status{State: StateSucceeded},
+		}
+		target Pod
+	)
+
+	data, err := pod.MarshalBinary()
+	require.NoError(t, err)
+
+	err = target.UnmarshalBinary(data)
+	require.NoError(t, err)
+
+	require.Equal(t, pod, target)
+}
+
 func setup(t *testing.T) (Pod, *mock.MockContainerRuntime) {
 	t.Helper()
 

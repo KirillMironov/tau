@@ -25,6 +25,6 @@ func KindToProto(kind resources.Kind) (api.Kind, error) {
 	case resources.KindPod:
 		return api.Kind_KIND_POD, nil
 	default:
-		return 0, fmt.Errorf("unexpected resource kind: %s", kind)
+		return api.Kind_KIND_UNSPECIFIED, fmt.Errorf("unexpected resource kind: %s", kind)
 	}
 }

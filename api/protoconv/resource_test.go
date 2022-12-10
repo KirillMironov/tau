@@ -41,7 +41,7 @@ func TestResourceToProto_Container(t *testing.T) {
 	require.NoError(t, err)
 	assert.Equal(t, protoContainer, resource)
 
-	resource, err = ResourceToProto(&container)
+	resource, err = ResourceToProto(container)
 	require.NoError(t, err)
 	assert.Equal(t, protoContainer, resource)
 
@@ -57,7 +57,7 @@ func TestResourceToProto_Pod(t *testing.T) {
 	require.NoError(t, err)
 	assert.Equal(t, protoPod, resource)
 
-	resource, err = ResourceToProto(&pod)
+	resource, err = ResourceToProto(pod)
 	require.NoError(t, err)
 	assert.Equal(t, protoPod, resource)
 
@@ -66,14 +66,14 @@ func TestResourceToProto_Pod(t *testing.T) {
 	assert.Nil(t, resource)
 }
 
-func testResources() (resources.Container, resources.Pod, *api.Resource, *api.Resource) {
+func testResources() (*resources.Container, *resources.Pod, *api.Resource, *api.Resource) {
 	var (
-		container = resources.Container{
+		container = &resources.Container{
 			Name:    "container",
 			Image:   "image",
 			Command: "command",
 		}
-		pod = resources.Pod{
+		pod = &resources.Pod{
 			Name: "pod",
 			Containers: []resources.Container{
 				{Name: "container", Image: "image", Command: "command"},

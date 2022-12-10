@@ -4,6 +4,7 @@ option go_package = "./;api";
 
 service Resources {
   rpc Create(Resource) returns (Response) {}
+  rpc Get(Descriptor) returns (Status) {}
   rpc Remove(Descriptor) returns (Response) {}
 }
 
@@ -23,6 +24,19 @@ message Container {
 message Pod {
   string name = 1;
   repeated Container containers = 2;
+}
+
+enum State {
+  STATE_UNSPECIFIED = 0;
+  STATE_PENDING = 1;
+  STATE_RUNNING = 2;
+  STATE_TERMINATING = 3;
+  STATE_SUCCEEDED = 4;
+  STATE_FAILED = 5;
+}
+
+message Status {
+  State state = 1;
 }
 
 enum Kind {

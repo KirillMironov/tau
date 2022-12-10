@@ -9,15 +9,17 @@ import (
 )
 
 type Resources struct {
-	createCh chan<- resources.Resource
-	removeCh chan<- resources.Descriptor
+	service service
 }
 
-func NewResources(createCh chan<- resources.Resource, removeCh chan<- resources.Descriptor) *Resources {
-	return &Resources{
-		createCh: createCh,
-		removeCh: removeCh,
-	}
+type service interface {
+	Create(resources.Resource) error
+	Remove(resources.Descriptor) error
+	Get(resources.Descriptor) (resources.Status, error)
+}
+
+func NewResources(service service) *Resources {
+	return &Resources{service: service}
 }
 
 func (r Resources) Create(_ context.Context, resource *api.Resource) (*api.Response, error) {
@@ -26,21 +28,28 @@ func (r Resources) Create(_ context.Context, resource *api.Resource) (*api.Respo
 		return nil, err
 	}
 
-	r.createCh <- convertedResource
-
-	return &api.Response{}, nil
+	return &api.Response{}, r.service.Create(convertedResource)
 }
 
-func (r Resources) Remove(_ context.Context, descriptor *api.Descriptor) (*api.Response, error) {
-	kind, err := protoconv.KindFromProto(descriptor.Kind)
+func (r Resources) Get(_ context.Context, descriptor *api.Descriptor) (*api.Status, error) {
+	convertedDescriptor, err := protoconv.DescriptorFromProto(descriptor)
 	if err != nil {
 		return nil, err
 	}
 
-	r.removeCh <- resources.Descriptor{
-		Name: descriptor.Name,
-		Kind: kind,
+	status, err := r.service.Get(convertedDescriptor)
+	if err != nil {
+		return nil, err
 	}
 
-	return &api.Response{}, nil
+	return protoconv.StatusToProto(status)
+}
+
+func (r Resources) Remove(_ context.Context, descriptor *api.Descriptor) (*api.Response, error) {
+	convertedDescriptor, err := protoconv.DescriptorFromProto(descriptor)
+	if err != nil {
+		return nil, err
+	}
+
+	return &api.Response{}, r.service.Remove(convertedDescriptor)
 }

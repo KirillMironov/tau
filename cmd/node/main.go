@@ -13,7 +13,6 @@ import (
 	"github.com/KirillMironov/tau/internal/service"
 	"github.com/KirillMironov/tau/internal/storage"
 	"github.com/KirillMironov/tau/internal/transport"
-	"github.com/KirillMironov/tau/resources"
 	"github.com/KirillMironov/tau/runtimes"
 )
 
@@ -45,18 +44,12 @@ func main() {
 
 	// DI
 	var (
-		createCh = make(chan resources.Resource)
-		removeCh = make(chan resources.Descriptor)
-
 		runtime = runtimes.NewDocker(dockerClient)
 
 		resourcesStorage = storage.NewResources(db)
-		resourcesService = service.NewResources(createCh, removeCh, resourcesStorage, runtime, logger)
-		resourcesHandler = transport.NewResources(createCh, removeCh)
+		resourcesService = service.NewResources(resourcesStorage, runtime, logger)
+		resourcesHandler = transport.NewResources(resourcesService)
 	)
-
-	// Node
-	go resourcesService.Start()
 
 	// gRPC server
 	listener, err := net.Listen("tcp", address)

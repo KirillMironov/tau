@@ -1,8 +1,6 @@
 package storage
 
 import (
-	"bytes"
-	"encoding/gob"
 	"fmt"
 
 	"github.com/boltdb/bolt"
@@ -15,9 +13,6 @@ type Resources struct {
 }
 
 func NewResources(db *bolt.DB) *Resources {
-	gob.Register(resources.Container{})
-	gob.Register(resources.Pod{})
-
 	return &Resources{db: db}
 }
 
@@ -32,18 +27,27 @@ func (r Resources) Put(resource resources.Resource) error {
 			return err
 		}
 
-		buf := new(bytes.Buffer)
-		if err = gob.NewEncoder(buf).Encode(&resource); err != nil {
+		data, err := resource.MarshalBinary()
+		if err != nil {
 			return err
 		}
 
-		return bucket.Put([]byte(name), buf.Bytes())
+		return bucket.Put([]byte(name), data)
 	})
 }
 
 func (r Resources) Get(descriptor resources.Descriptor) (resource resources.Resource, _ error) {
 	kind := descriptor.Kind.String()
 	name := descriptor.Name
+
+	switch descriptor.Kind {
+	case resources.KindContainer:
+		resource = &resources.Container{}
+	case resources.KindPod:
+		resource = &resources.Pod{}
+	default:
+		return nil, fmt.Errorf("unexpected resource kind %q", descriptor.Kind)
+	}
 
 	return resource, r.db.View(func(tx *bolt.Tx) error {
 		bucket := tx.Bucket([]byte(kind))
@@ -56,7 +60,7 @@ func (r Resources) Get(descriptor resources.Descriptor) (resource resources.Reso
 			return fmt.Errorf("resource with name %q not found", name)
 		}
 
-		return gob.NewDecoder(bytes.NewReader(data)).Decode(&resource)
+		return resource.UnmarshalBinary(data)
 	})
 }
 

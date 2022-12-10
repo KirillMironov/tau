@@ -5,8 +5,8 @@ import (
 	"github.com/KirillMironov/tau/resources"
 )
 
-func ContainerFromProto(container *api.Container) resources.Container {
-	return resources.Container{
+func ContainerFromProto(container *api.Container) *resources.Container {
+	return &resources.Container{
 		Name:    container.Name,
 		Image:   container.Image,
 		Command: container.Command,
@@ -25,7 +25,7 @@ func ContainersFromProto(containers []*api.Container) []resources.Container {
 	target := make([]resources.Container, 0, len(containers))
 
 	for _, container := range containers {
-		target = append(target, ContainerFromProto(container))
+		target = append(target, *ContainerFromProto(container))
 	}
 
 	return target

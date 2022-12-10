@@ -5,8 +5,8 @@ import (
 	"github.com/KirillMironov/tau/resources"
 )
 
-func PodFromProto(pod *api.Pod) resources.Pod {
-	return resources.Pod{
+func PodFromProto(pod *api.Pod) *resources.Pod {
+	return &resources.Pod{
 		Name:       pod.Name,
 		Containers: ContainersFromProto(pod.Containers),
 	}

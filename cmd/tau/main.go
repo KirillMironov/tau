@@ -40,6 +40,7 @@ func main() {
 		},
 		Subcommands: []*cobrax.Command{
 			group.Create(),
+			group.Get(),
 			group.Remove(),
 		},
 	}
