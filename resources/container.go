@@ -63,24 +63,25 @@ func (c *Container) validate() error {
 	}
 }
 
-type ContainerAlias Container
+// containerAlias is used to avoid infinite recursion during gob encoding/decoding.
+type containerAlias Container
 
-type ContainerGob struct {
-	*ContainerAlias
-	Status Status
+// containerGob represents a gob-serializable version of Container.
+type containerGob struct {
+	Container *containerAlias
+	Status    Status
 }
 
 func (c *Container) MarshalBinary() ([]byte, error) {
-	var (
-		container = ContainerGob{
-			ContainerAlias: (*ContainerAlias)(c),
-			Status:         c.status,
-		}
-		buf = new(bytes.Buffer)
-	)
+	container := containerGob{
+		Container: (*containerAlias)(c),
+		Status:    c.status,
+	}
 
-	err := gob.NewEncoder(buf).Encode(container)
-	if err != nil {
+	buf := new(bytes.Buffer)
+	enc := gob.NewEncoder(buf)
+
+	if err := enc.Encode(container); err != nil {
 		return nil, err
 	}
 
@@ -88,12 +89,13 @@ func (c *Container) MarshalBinary() ([]byte, error) {
 }
 
 func (c *Container) UnmarshalBinary(data []byte) error {
-	var container = &ContainerGob{
-		ContainerAlias: (*ContainerAlias)(c),
+	container := containerGob{
+		Container: (*containerAlias)(c),
 	}
 
-	err := gob.NewDecoder(bytes.NewReader(data)).Decode(&container)
-	if err != nil {
+	dec := gob.NewDecoder(bytes.NewReader(data))
+
+	if err := dec.Decode(&container); err != nil {
 		return err
 	}
 

@@ -76,24 +76,25 @@ func (p *Pod) validate() error {
 	return nil
 }
 
-type PodAlias Pod
+// podAlias is used to avoid infinite recursion during gob encoding/decoding.
+type podAlias Pod
 
-type PodGob struct {
-	*PodAlias
+// podGob represents a gob-serializable version of Pod.
+type podGob struct {
+	Pod    *podAlias
 	Status Status
 }
 
 func (p *Pod) MarshalBinary() ([]byte, error) {
-	var (
-		pod = PodGob{
-			PodAlias: (*PodAlias)(p),
-			Status:   p.status,
-		}
-		buf = new(bytes.Buffer)
-	)
+	pod := podGob{
+		Pod:    (*podAlias)(p),
+		Status: p.status,
+	}
 
-	err := gob.NewEncoder(buf).Encode(pod)
-	if err != nil {
+	buf := new(bytes.Buffer)
+	enc := gob.NewEncoder(buf)
+
+	if err := enc.Encode(pod); err != nil {
 		return nil, err
 	}
 
@@ -101,12 +102,13 @@ func (p *Pod) MarshalBinary() ([]byte, error) {
 }
 
 func (p *Pod) UnmarshalBinary(data []byte) error {
-	var pod = &PodGob{
-		PodAlias: (*PodAlias)(p),
+	pod := podGob{
+		Pod: (*podAlias)(p),
 	}
 
-	err := gob.NewDecoder(bytes.NewReader(data)).Decode(&pod)
-	if err != nil {
+	dec := gob.NewDecoder(bytes.NewReader(data))
+
+	if err := dec.Decode(&pod); err != nil {
 		return err
 	}
 
