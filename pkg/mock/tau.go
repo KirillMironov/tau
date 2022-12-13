@@ -6,6 +6,7 @@ package mock
 
 import (
 	reflect "reflect"
+	time "time"
 
 	runtimes "github.com/KirillMironov/tau/runtimes"
 	gomock "github.com/golang/mock/gomock"
@@ -60,4 +61,33 @@ func (m *MockContainerRuntime) Start(arg0 runtimes.Container) error {
 func (mr *MockContainerRuntimeMockRecorder) Start(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Start", reflect.TypeOf((*MockContainerRuntime)(nil).Start), arg0)
+}
+
+// State mocks base method.
+func (m *MockContainerRuntime) State(arg0 string) (runtimes.ContainerState, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "State", arg0)
+	ret0, _ := ret[0].(runtimes.ContainerState)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// State indicates an expected call of State.
+func (mr *MockContainerRuntimeMockRecorder) State(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "State", reflect.TypeOf((*MockContainerRuntime)(nil).State), arg0)
+}
+
+// Stop mocks base method.
+func (m *MockContainerRuntime) Stop(arg0 string, arg1 time.Duration) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Stop", arg0, arg1)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// Stop indicates an expected call of Stop.
+func (mr *MockContainerRuntimeMockRecorder) Stop(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Stop", reflect.TypeOf((*MockContainerRuntime)(nil).Stop), arg0, arg1)
 }

@@ -2,8 +2,11 @@ package runtimes
 
 import (
 	"context"
+	"errors"
+	"fmt"
 	"io"
 	"strings"
+	"time"
 
 	"github.com/docker/docker/api/types"
 	containertypes "github.com/docker/docker/api/types/container"
@@ -19,24 +22,26 @@ func NewDocker(client *client.Client) *Docker {
 }
 
 func (d Docker) Start(container Container) error {
+	if container.Name == "" {
+		return errors.New("container name is required")
+	}
+
 	ctx := context.Background()
 
-	pullLogs, err := d.client.ImagePull(ctx, container.Image, types.ImagePullOptions{})
+	logs, err := d.client.ImagePull(ctx, container.Image, types.ImagePullOptions{})
 	if err != nil {
 		return err
 	}
-	defer pullLogs.Close()
+	defer logs.Close()
 
-	_, _ = io.Copy(io.Discard, pullLogs)
+	_, _ = io.Copy(io.Discard, logs)
 
 	config := &containertypes.Config{
 		Image: container.Image,
 		Cmd:   strings.Split(container.Command, " "),
 	}
 
-	hostConfig := &containertypes.HostConfig{AutoRemove: true}
-
-	response, err := d.client.ContainerCreate(ctx, config, hostConfig, nil, nil, container.Name)
+	response, err := d.client.ContainerCreate(ctx, config, nil, nil, nil, container.Name)
 	if err != nil {
 		return err
 	}
@@ -44,6 +49,41 @@ func (d Docker) Start(container Container) error {
 	return d.client.ContainerStart(ctx, response.ID, types.ContainerStartOptions{})
 }
 
+func (d Docker) Stop(containerName string, timeout time.Duration) error {
+	err := d.client.ContainerStop(context.Background(), containerName, &timeout)
+	if client.IsErrNotFound(err) {
+		return ErrContainerNotFound
+	}
+
+	return err
+}
+
 func (d Docker) Remove(containerName string) error {
-	return d.client.ContainerStop(context.Background(), containerName, nil)
+	options := types.ContainerRemoveOptions{RemoveVolumes: true, Force: true}
+	_ = d.client.ContainerRemove(context.Background(), containerName, options)
+
+	return nil
+}
+
+func (d Docker) State(containerName string) (ContainerState, error) {
+	status, err := d.client.ContainerInspect(context.Background(), containerName)
+	if err != nil {
+		if client.IsErrNotFound(err) {
+			return 0, ErrContainerNotFound
+		}
+		return 0, err
+	}
+
+	state := status.State
+
+	switch {
+	case state.Running:
+		return ContainerStateRunning, nil
+	case state.ExitCode == 0:
+		return ContainerStateSucceeded, nil
+	case state.ExitCode > 0:
+		return ContainerStateFailed, nil
+	default:
+		return 0, fmt.Errorf("unexpected container state: %s", state.Status)
+	}
 }
