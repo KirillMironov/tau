@@ -1,27 +1,33 @@
 package resources
 
 import (
+	"reflect"
 	"testing"
-
-	"github.com/stretchr/testify/require"
 )
 
 func TestContainerGob(t *testing.T) {
+	t.Parallel()
+
 	var (
-		container = Container{
+		want = Container{
 			Name:    "name",
 			Image:   "image",
 			Command: "command",
 			status:  Status{State: StateSucceeded},
 		}
-		target Container
+		got Container
 	)
 
-	data, err := container.MarshalBinary()
-	require.NoError(t, err)
+	data, err := want.MarshalBinary()
+	if err != nil {
+		t.Fatalf("failed to marshal container: %v", err)
+	}
 
-	err = target.UnmarshalBinary(data)
-	require.NoError(t, err)
+	if err = got.UnmarshalBinary(data); err != nil {
+		t.Fatalf("failed to unmarshal container: %v", err)
+	}
 
-	require.Equal(t, container, target)
+	if !reflect.DeepEqual(got, want) {
+		t.Fatalf("got %+v, want %+v", got, want)
+	}
 }

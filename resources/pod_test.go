@@ -2,16 +2,18 @@ package resources
 
 import (
 	"errors"
+	"reflect"
 	"testing"
 
 	"github.com/golang/mock/gomock"
 	"github.com/hashicorp/go-multierror"
-	"github.com/stretchr/testify/require"
 
 	"github.com/KirillMironov/tau/pkg/mock"
 )
 
 func TestPod_Create(t *testing.T) {
+	t.Parallel()
+
 	pod, runtime := setup(t)
 
 	gomock.InOrder(
@@ -26,11 +28,14 @@ func TestPod_Create(t *testing.T) {
 			Times(2),
 	)
 
-	err := pod.Create(runtime)
-	require.Error(t, err)
+	if err := pod.Create(runtime); err == nil {
+		t.Fatalf("err = %v, want not nil", err)
+	}
 }
 
 func TestPod_Remove(t *testing.T) {
+	t.Parallel()
+
 	pod, runtime := setup(t)
 
 	runtime.
@@ -40,16 +45,25 @@ func TestPod_Remove(t *testing.T) {
 		Times(2)
 
 	err := pod.Remove(runtime)
-	require.Error(t, err)
+	if err == nil {
+		t.Fatalf("err = %v, want not nil", err)
+	}
 
 	e, ok := err.(*multierror.Error)
-	require.True(t, ok)
-	require.Len(t, e.Errors, 2)
+	if !ok {
+		t.Fatalf("err type = %T, want *multierror.Error", err)
+	}
+
+	if len(e.Errors) != 2 {
+		t.Fatalf("len(e.Errors) = %d, want 2", len(e.Errors))
+	}
 }
 
 func TestPodGob(t *testing.T) {
+	t.Parallel()
+
 	var (
-		pod = Pod{
+		want = Pod{
 			Name: "name",
 			Containers: []Container{
 				{
@@ -66,16 +80,21 @@ func TestPodGob(t *testing.T) {
 			},
 			status: Status{State: StateSucceeded},
 		}
-		target Pod
+		got Pod
 	)
 
-	data, err := pod.MarshalBinary()
-	require.NoError(t, err)
+	data, err := want.MarshalBinary()
+	if err != nil {
+		t.Fatalf("failed to marshal pod: %v", err)
+	}
 
-	err = target.UnmarshalBinary(data)
-	require.NoError(t, err)
+	if err = got.UnmarshalBinary(data); err != nil {
+		t.Fatalf("failed to unmarshal pod: %v", err)
+	}
 
-	require.Equal(t, pod, target)
+	if !reflect.DeepEqual(got, want) {
+		t.Fatalf("got = %+v, want %+v", got, want)
+	}
 }
 
 func setup(t *testing.T) (Pod, *mock.MockContainerRuntime) {

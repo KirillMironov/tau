@@ -1,74 +1,95 @@
 package tomlutil
 
 import (
+	"reflect"
 	"testing"
-
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
 
 	"github.com/KirillMironov/tau/resources"
 )
 
-func TestUnmarshalByKind_Container(t *testing.T) {
-	var (
-		blob = []byte(`
-			kind = "container"
-			name = "busybox-sleep"
-			image = "docker.io/library/busybox:1.35.0"
-			command = "sleep 500"
-		`)
-		container = &resources.Container{
-			Name:    "busybox-sleep",
-			Image:   "docker.io/library/busybox:1.35.0",
-			Command: "sleep 500",
-		}
-	)
+func TestUnmarshalByKind(t *testing.T) {
+	t.Parallel()
 
-	resource, err := UnmarshalByKind(blob)
-	require.NoError(t, err)
-	assert.Equal(t, container, resource)
-}
-
-func TestUnmarshalByKind_Pod(t *testing.T) {
-	var (
-		blob = []byte(`
-			kind = "pod"
-			name = "busybox"
-
-			[[containers]]
-			name = "busybox-sleep"
-			image = "docker.io/library/busybox:1.35.0"
-			command = "sleep 1000"
-
-			[[containers]]
-			name = "busybox-sleep"
-			image = "docker.io/library/busybox:1.35.0"
-			command = "sleep 500"
-		`)
-		pod = &resources.Pod{
-			Name: "busybox",
-			Containers: []resources.Container{
-				{
-					Name:    "busybox-sleep",
-					Image:   "docker.io/library/busybox:1.35.0",
-					Command: "sleep 1000",
-				},
-				{
-					Name:    "busybox-sleep",
-					Image:   "docker.io/library/busybox:1.35.0",
-					Command: "sleep 500",
+	test := []struct {
+		name    string
+		blob    []byte
+		want    resources.Resource
+		wantErr bool
+	}{
+		{
+			name: "container",
+			blob: []byte(`
+				kind = "container"
+				name = "busybox-sleep"
+				image = "docker.io/library/busybox:1.35.0"
+				command = "sleep 500"
+			`),
+			want: &resources.Container{
+				Name:    "busybox-sleep",
+				Image:   "docker.io/library/busybox:1.35.0",
+				Command: "sleep 500",
+			},
+			wantErr: false,
+		},
+		{
+			name: "pod",
+			blob: []byte(`
+				kind = "pod"
+				name = "busybox"
+				
+				[[containers]]
+				name = "busybox-sleep"
+				image = "docker.io/library/busybox:1.35.0"
+				command = "sleep 1000"
+				
+				[[containers]]
+				name = "busybox-sleep"
+				image = "docker.io/library/busybox:1.35.0"
+				command = "sleep 500"
+			`),
+			want: &resources.Pod{
+				Name: "busybox",
+				Containers: []resources.Container{
+					{
+						Name:    "busybox-sleep",
+						Image:   "docker.io/library/busybox:1.35.0",
+						Command: "sleep 1000",
+					},
+					{
+						Name:    "busybox-sleep",
+						Image:   "docker.io/library/busybox:1.35.0",
+						Command: "sleep 500",
+					},
 				},
 			},
-		}
-	)
+			wantErr: false,
+		},
+		{
+			name:    "unexpected kind",
+			blob:    []byte(""),
+			want:    nil,
+			wantErr: true,
+		},
+	}
 
-	resource, err := UnmarshalByKind(blob)
-	require.NoError(t, err)
-	assert.Equal(t, pod, resource)
-}
+	for _, tc := range test {
+		tc := tc
 
-func TestUnmarshalByKind(t *testing.T) {
-	resource, err := UnmarshalByKind(nil)
-	require.Error(t, err)
-	assert.Empty(t, resource)
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			got, err := UnmarshalByKind(tc.blob)
+			if gotErr := err != nil; gotErr != tc.wantErr {
+				t.Errorf("err = %v, want error presence = %v", err, tc.wantErr)
+			}
+
+			if tc.wantErr {
+				return
+			}
+
+			if !reflect.DeepEqual(got, tc.want) {
+				t.Errorf("got = %+v, want = %+v", got, tc.want)
+			}
+		})
+	}
 }
