@@ -4,6 +4,7 @@ import (
 	"reflect"
 	"testing"
 
+	"github.com/KirillMironov/tau"
 	"github.com/KirillMironov/tau/api"
 	"github.com/KirillMironov/tau/resources"
 )
@@ -49,7 +50,7 @@ func TestResourceFromProto(t *testing.T) {
 	tests := []struct {
 		name    string
 		proto   *api.Resource
-		want    resources.Resource
+		want    tau.Resource
 		wantErr bool
 	}{
 		{
@@ -99,7 +100,7 @@ func TestResourceToProto(t *testing.T) {
 
 	tests := []struct {
 		name     string
-		resource resources.Resource
+		resource tau.Resource
 		want     *api.Resource
 		wantErr  bool
 	}{

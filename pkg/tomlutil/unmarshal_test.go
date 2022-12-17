@@ -4,6 +4,7 @@ import (
 	"reflect"
 	"testing"
 
+	"github.com/KirillMironov/tau"
 	"github.com/KirillMironov/tau/resources"
 )
 
@@ -13,7 +14,7 @@ func TestUnmarshalByKind(t *testing.T) {
 	test := []struct {
 		name    string
 		blob    []byte
-		want    resources.Resource
+		want    tau.Resource
 		wantErr bool
 	}{
 		{

@@ -1,31 +1,26 @@
 package tomlutil
 
 import (
-	"fmt"
-
 	"github.com/BurntSushi/toml"
 
+	"github.com/KirillMironov/tau"
 	"github.com/KirillMironov/tau/resources"
 )
 
-func UnmarshalByKind(data []byte) (resources.Resource, error) {
-	var resource struct {
-		Kind resources.Kind
+func UnmarshalByKind(data []byte) (tau.Resource, error) {
+	var input struct {
+		Kind tau.Kind
 	}
 
-	err := toml.Unmarshal(data, &resource)
+	err := toml.Unmarshal(data, &input)
 	if err != nil {
 		return nil, err
 	}
 
-	switch resource.Kind {
-	case resources.KindContainer:
-		container := &resources.Container{}
-		return container, toml.Unmarshal(data, &container)
-	case resources.KindPod:
-		pod := &resources.Pod{}
-		return pod, toml.Unmarshal(data, &pod)
-	default:
-		return nil, fmt.Errorf("unexpected resource kind: %s", resource.Kind)
+	resource, err := resources.ResourceByKind(input.Kind)
+	if err != nil {
+		return nil, err
 	}
+
+	return resource, toml.Unmarshal(data, resource)
 }

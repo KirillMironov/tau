@@ -3,9 +3,9 @@ package transport
 import (
 	"context"
 
+	"github.com/KirillMironov/tau"
 	"github.com/KirillMironov/tau/api"
 	"github.com/KirillMironov/tau/api/protoconv"
-	"github.com/KirillMironov/tau/resources"
 )
 
 type Resources struct {
@@ -13,9 +13,9 @@ type Resources struct {
 }
 
 type service interface {
-	Create(resources.Resource) error
-	Remove(resources.Descriptor) error
-	Get(resources.Descriptor) (resources.Status, error)
+	Create(tau.Resource) error
+	Remove(tau.Descriptor) error
+	Get(tau.Descriptor) (tau.Status, error)
 }
 
 func NewResources(service service) *Resources {

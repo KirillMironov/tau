@@ -8,6 +8,7 @@ import (
 	"github.com/golang/mock/gomock"
 	"github.com/hashicorp/go-multierror"
 
+	"github.com/KirillMironov/tau"
 	"github.com/KirillMironov/tau/pkg/mock"
 )
 
@@ -70,15 +71,15 @@ func TestPodGob(t *testing.T) {
 					Name:    "name-1",
 					Image:   "image-1",
 					Command: "command-2",
-					status:  Status{State: StateRunning},
+					status:  tau.Status{State: tau.StateRunning},
 				},
 				{
 					Name:   "name-2",
 					Image:  "image-2",
-					status: Status{State: StatePending},
+					status: tau.Status{State: tau.StatePending},
 				},
 			},
-			status: Status{State: StateSucceeded},
+			status: tau.Status{State: tau.StateSucceeded},
 		}
 		got Pod
 	)

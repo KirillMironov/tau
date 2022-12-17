@@ -5,6 +5,7 @@ import (
 
 	"github.com/boltdb/bolt"
 
+	"github.com/KirillMironov/tau"
 	"github.com/KirillMironov/tau/resources"
 )
 
@@ -16,13 +17,11 @@ func NewResources(db *bolt.DB) *Resources {
 	return &Resources{db: db}
 }
 
-func (r Resources) Put(resource resources.Resource) error {
+func (r Resources) Put(resource tau.Resource) error {
 	descriptor := resource.Descriptor()
-	kind := descriptor.Kind.String()
-	name := descriptor.Name
 
 	return r.db.Update(func(tx *bolt.Tx) error {
-		bucket, err := tx.CreateBucketIfNotExists([]byte(kind))
+		bucket, err := tx.CreateBucketIfNotExists([]byte(descriptor.Kind))
 		if err != nil {
 			return err
 		}
@@ -32,48 +31,38 @@ func (r Resources) Put(resource resources.Resource) error {
 			return err
 		}
 
-		return bucket.Put([]byte(name), data)
+		return bucket.Put([]byte(descriptor.Name), data)
 	})
 }
 
-func (r Resources) Get(descriptor resources.Descriptor) (resource resources.Resource, _ error) {
-	kind := descriptor.Kind.String()
-	name := descriptor.Name
-
-	switch descriptor.Kind {
-	case resources.KindContainer:
-		resource = &resources.Container{}
-	case resources.KindPod:
-		resource = &resources.Pod{}
-	default:
-		return nil, fmt.Errorf("unexpected resource kind %q", descriptor.Kind)
+func (r Resources) Get(descriptor tau.Descriptor) (tau.Resource, error) {
+	resource, err := resources.ResourceByKind(descriptor.Kind)
+	if err != nil {
+		return nil, err
 	}
 
 	return resource, r.db.View(func(tx *bolt.Tx) error {
-		bucket := tx.Bucket([]byte(kind))
+		bucket := tx.Bucket([]byte(descriptor.Kind))
 		if bucket == nil {
-			return fmt.Errorf("bucket %q not found", kind)
+			return fmt.Errorf("bucket %q not found", descriptor.Kind)
 		}
 
-		data := bucket.Get([]byte(name))
+		data := bucket.Get([]byte(descriptor.Name))
 		if data == nil {
-			return fmt.Errorf("resource with name %q not found", name)
+			return fmt.Errorf("resource with name %q not found", descriptor.Name)
 		}
 
 		return resource.UnmarshalBinary(data)
 	})
 }
 
-func (r Resources) Delete(descriptor resources.Descriptor) error {
-	kind := descriptor.Kind.String()
-	name := descriptor.Name
-
+func (r Resources) Delete(descriptor tau.Descriptor) error {
 	return r.db.Update(func(tx *bolt.Tx) error {
-		bucket := tx.Bucket([]byte(kind))
+		bucket := tx.Bucket([]byte(descriptor.Kind))
 		if bucket == nil {
-			return fmt.Errorf("bucket %q not found", kind)
+			return fmt.Errorf("bucket %q not found", descriptor.Kind)
 		}
 
-		return bucket.Delete([]byte(name))
+		return bucket.Delete([]byte(descriptor.Name))
 	})
 }

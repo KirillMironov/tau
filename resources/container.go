@@ -5,6 +5,7 @@ import (
 	"encoding/gob"
 	"errors"
 
+	"github.com/KirillMironov/tau"
 	"github.com/KirillMironov/tau/runtimes"
 )
 
@@ -12,7 +13,7 @@ type Container struct {
 	Name    string
 	Image   string
 	Command string
-	status  Status
+	status  tau.Status
 }
 
 func (c *Container) Create(runtime runtimes.ContainerRuntime) error {
@@ -37,18 +38,18 @@ func (c *Container) Remove(runtime runtimes.ContainerRuntime) error {
 	return runtime.Remove(c.Name)
 }
 
-func (c *Container) Descriptor() Descriptor {
-	return Descriptor{
+func (c *Container) Descriptor() tau.Descriptor {
+	return tau.Descriptor{
 		Name: c.Name,
-		Kind: KindContainer,
+		Kind: tau.KindContainer,
 	}
 }
 
-func (c *Container) Status() Status {
+func (c *Container) Status() tau.Status {
 	return c.status
 }
 
-func (c *Container) SetState(state State) {
+func (c *Container) SetState(state tau.State) {
 	c.status.State = state
 }
 
@@ -69,7 +70,7 @@ type containerAlias Container
 // containerGob represents a gob-serializable version of Container.
 type containerGob struct {
 	Container *containerAlias
-	Status    Status
+	Status    tau.Status
 }
 
 func (c *Container) MarshalBinary() ([]byte, error) {

@@ -1,9 +1,26 @@
-package resources
+package tau
 
 import (
 	"encoding"
 
 	"github.com/KirillMironov/tau/runtimes"
+)
+
+type State string
+
+const (
+	StatePending     State = "pending"
+	StateRunning     State = "running"
+	StateTerminating State = "terminating"
+	StateSucceeded   State = "succeeded"
+	StateFailed      State = "failed"
+)
+
+type Kind string
+
+const (
+	KindContainer Kind = "container"
+	KindPod       Kind = "pod"
 )
 
 type Descriptor struct {

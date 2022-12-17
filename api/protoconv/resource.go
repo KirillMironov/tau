@@ -3,11 +3,12 @@ package protoconv
 import (
 	"fmt"
 
+	"github.com/KirillMironov/tau"
 	"github.com/KirillMironov/tau/api"
 	"github.com/KirillMironov/tau/resources"
 )
 
-func ResourceFromProto(resource *api.Resource) (resources.Resource, error) {
+func ResourceFromProto(resource *api.Resource) (tau.Resource, error) {
 	switch v := resource.GetKind().(type) {
 	case *api.Resource_Container:
 		return ContainerFromProto(v.Container), nil
@@ -18,7 +19,7 @@ func ResourceFromProto(resource *api.Resource) (resources.Resource, error) {
 	}
 }
 
-func ResourceToProto(resource resources.Resource) (*api.Resource, error) {
+func ResourceToProto(resource tau.Resource) (*api.Resource, error) {
 	switch v := resource.(type) {
 	case *resources.Container:
 		return &api.Resource{Kind: &api.Resource_Container{Container: ContainerToProto(*v)}}, nil
@@ -29,19 +30,19 @@ func ResourceToProto(resource resources.Resource) (*api.Resource, error) {
 	}
 }
 
-func DescriptorFromProto(descriptor *api.Descriptor) (resources.Descriptor, error) {
+func DescriptorFromProto(descriptor *api.Descriptor) (tau.Descriptor, error) {
 	kind, err := KindFromProto(descriptor.Kind)
 	if err != nil {
-		return resources.Descriptor{}, err
+		return tau.Descriptor{}, err
 	}
 
-	return resources.Descriptor{
+	return tau.Descriptor{
 		Name: descriptor.Name,
 		Kind: kind,
 	}, nil
 }
 
-func StatusToProto(status resources.Status) (*api.Status, error) {
+func StatusToProto(status tau.Status) (*api.Status, error) {
 	state, err := StateToProto(status.State)
 	if err != nil {
 		return nil, err

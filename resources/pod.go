@@ -7,13 +7,14 @@ import (
 
 	"github.com/hashicorp/go-multierror"
 
+	"github.com/KirillMironov/tau"
 	"github.com/KirillMironov/tau/runtimes"
 )
 
 type Pod struct {
 	Name       string
 	Containers []Container
-	status     Status
+	status     tau.Status
 }
 
 func (p *Pod) Create(runtime runtimes.ContainerRuntime) error {
@@ -46,18 +47,18 @@ func (p *Pod) Remove(runtime runtimes.ContainerRuntime) error {
 	return err
 }
 
-func (p *Pod) Descriptor() Descriptor {
-	return Descriptor{
+func (p *Pod) Descriptor() tau.Descriptor {
+	return tau.Descriptor{
 		Name: p.Name,
-		Kind: KindPod,
+		Kind: tau.KindPod,
 	}
 }
 
-func (p *Pod) Status() Status {
+func (p *Pod) Status() tau.Status {
 	return p.status
 }
 
-func (p *Pod) SetState(state State) {
+func (p *Pod) SetState(state tau.State) {
 	p.status.State = state
 }
 
@@ -82,7 +83,7 @@ type podAlias Pod
 // podGob represents a gob-serializable version of Pod.
 type podGob struct {
 	Pod    *podAlias
-	Status Status
+	Status tau.Status
 }
 
 func (p *Pod) MarshalBinary() ([]byte, error) {

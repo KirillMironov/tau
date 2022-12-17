@@ -3,6 +3,8 @@ package resources
 import (
 	"reflect"
 	"testing"
+
+	"github.com/KirillMironov/tau"
 )
 
 func TestContainerGob(t *testing.T) {
@@ -13,7 +15,7 @@ func TestContainerGob(t *testing.T) {
 			Name:    "name",
 			Image:   "image",
 			Command: "command",
-			status:  Status{State: StateSucceeded},
+			status:  tau.Status{State: tau.StateSucceeded},
 		}
 		got Container
 	)
