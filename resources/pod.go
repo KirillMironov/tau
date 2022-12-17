@@ -8,7 +8,6 @@ import (
 	"github.com/hashicorp/go-multierror"
 
 	"github.com/KirillMironov/tau"
-	"github.com/KirillMironov/tau/runtimes"
 )
 
 type Pod struct {
@@ -17,7 +16,7 @@ type Pod struct {
 	status     tau.Status
 }
 
-func (p *Pod) Create(runtime runtimes.ContainerRuntime) error {
+func (p *Pod) Create(runtime tau.ContainerRuntime) error {
 	err := p.validate()
 	if err != nil {
 		return err
@@ -34,7 +33,7 @@ func (p *Pod) Create(runtime runtimes.ContainerRuntime) error {
 	return nil
 }
 
-func (p *Pod) Remove(runtime runtimes.ContainerRuntime) error {
+func (p *Pod) Remove(runtime tau.ContainerRuntime) error {
 	err := p.validate()
 	if err != nil {
 		return err

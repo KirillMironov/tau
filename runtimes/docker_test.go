@@ -11,6 +11,8 @@ import (
 	"github.com/docker/docker/api/types"
 	containertypes "github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/client"
+
+	"github.com/KirillMironov/tau"
 )
 
 const (
@@ -30,12 +32,12 @@ func TestDocker_Start(t *testing.T) {
 
 	tests := []struct {
 		name      string
-		container Container
+		container tau.Container
 		wantErr   bool
 	}{
 		{
 			name: "success",
-			container: Container{
+			container: tau.Container{
 				Name:    t.Name(),
 				Image:   busybox,
 				Command: "sleep 2m",
@@ -44,7 +46,7 @@ func TestDocker_Start(t *testing.T) {
 		},
 		{
 			name: "without command",
-			container: Container{
+			container: tau.Container{
 				Name:    t.Name(),
 				Image:   traefik,
 				Command: "",
@@ -53,7 +55,7 @@ func TestDocker_Start(t *testing.T) {
 		},
 		{
 			name: "without name",
-			container: Container{
+			container: tau.Container{
 				Name:    "",
 				Image:   busybox,
 				Command: "",
@@ -62,7 +64,7 @@ func TestDocker_Start(t *testing.T) {
 		},
 		{
 			name: "without image",
-			container: Container{
+			container: tau.Container{
 				Name:    t.Name(),
 				Image:   "",
 				Command: "",
@@ -71,7 +73,7 @@ func TestDocker_Start(t *testing.T) {
 		},
 		{
 			name: "invalid image",
-			container: Container{
+			container: tau.Container{
 				Name:    t.Name(),
 				Image:   "invalid-image",
 				Command: "",
@@ -125,13 +127,13 @@ func TestDocker_Stop(t *testing.T) {
 
 	tests := []struct {
 		name           string
-		container      Container
+		container      tau.Container
 		startContainer bool
 		wantErr        error
 	}{
 		{
 			name: "success",
-			container: Container{
+			container: tau.Container{
 				Name:    t.Name(),
 				Image:   traefik,
 				Command: "",
@@ -141,7 +143,7 @@ func TestDocker_Stop(t *testing.T) {
 		},
 		{
 			name: "container not found",
-			container: Container{
+			container: tau.Container{
 				Name:    "not-found",
 				Image:   traefik,
 				Command: "",
@@ -192,13 +194,13 @@ func TestDocker_Remove(t *testing.T) {
 
 	tests := []struct {
 		name           string
-		container      Container
+		container      tau.Container
 		startContainer bool
 		wantErr        error
 	}{
 		{
 			name: "success",
-			container: Container{
+			container: tau.Container{
 				Name:    t.Name(),
 				Image:   busybox,
 				Command: "sleep 2m",
@@ -208,7 +210,7 @@ func TestDocker_Remove(t *testing.T) {
 		},
 		{
 			name: "container not found",
-			container: Container{
+			container: tau.Container{
 				Name:    t.Name(),
 				Image:   busybox,
 				Command: "sleep 2m",
@@ -252,25 +254,25 @@ func TestDocker_State(t *testing.T) {
 
 	tests := []struct {
 		name           string
-		container      Container
+		container      tau.Container
 		startContainer bool
-		wantState      ContainerState
+		wantState      tau.ContainerState
 		wantErr        bool
 	}{
 		{
 			name: "state running",
-			container: Container{
+			container: tau.Container{
 				Name:    t.Name(),
 				Image:   busybox,
 				Command: "sleep 2m",
 			},
 			startContainer: true,
-			wantState:      ContainerStateRunning,
+			wantState:      tau.ContainerStateRunning,
 			wantErr:        false,
 		},
 		{
 			name: "container not found",
-			container: Container{
+			container: tau.Container{
 				Name:    t.Name(),
 				Image:   busybox,
 				Command: "sleep 2m",
@@ -317,7 +319,7 @@ func newDockerClient(t *testing.T) *client.Client {
 	return dockerClient
 }
 
-func mustStartContainer(t *testing.T, dockerClient *client.Client, container Container) {
+func mustStartContainer(t *testing.T, dockerClient *client.Client, container tau.Container) {
 	t.Helper()
 
 	ctx, cancel := context.WithCancel(context.Background())

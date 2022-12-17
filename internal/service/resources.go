@@ -5,12 +5,11 @@ import (
 
 	"github.com/KirillMironov/tau"
 	"github.com/KirillMironov/tau/pkg/logger"
-	"github.com/KirillMironov/tau/runtimes"
 )
 
 type Resources struct {
 	storage storage
-	runtime runtimes.ContainerRuntime
+	runtime tau.ContainerRuntime
 	logger  logger.Logger
 }
 
@@ -20,7 +19,7 @@ type storage interface {
 	Delete(tau.Descriptor) error
 }
 
-func NewResources(storage storage, runtime runtimes.ContainerRuntime, logger logger.Logger) *Resources {
+func NewResources(storage storage, runtime tau.ContainerRuntime, logger logger.Logger) *Resources {
 	return &Resources{
 		storage: storage,
 		runtime: runtime,

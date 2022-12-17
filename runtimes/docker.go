@@ -11,7 +11,11 @@ import (
 	"github.com/docker/docker/api/types"
 	containertypes "github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/client"
+
+	"github.com/KirillMironov/tau"
 )
+
+var ErrContainerNotFound = errors.New("container not found")
 
 type Docker struct {
 	client *client.Client
@@ -21,7 +25,7 @@ func NewDocker(client *client.Client) *Docker {
 	return &Docker{client: client}
 }
 
-func (d Docker) Start(container Container) error {
+func (d Docker) Start(container tau.Container) error {
 	if container.Name == "" {
 		return errors.New("container name is required")
 	}
@@ -65,7 +69,7 @@ func (d Docker) Remove(containerName string) error {
 	return nil
 }
 
-func (d Docker) State(containerName string) (ContainerState, error) {
+func (d Docker) State(containerName string) (tau.ContainerState, error) {
 	status, err := d.client.ContainerInspect(context.Background(), containerName)
 	if err != nil {
 		if client.IsErrNotFound(err) {
@@ -78,11 +82,11 @@ func (d Docker) State(containerName string) (ContainerState, error) {
 
 	switch {
 	case state.Running:
-		return ContainerStateRunning, nil
+		return tau.ContainerStateRunning, nil
 	case state.ExitCode == 0:
-		return ContainerStateSucceeded, nil
+		return tau.ContainerStateSucceeded, nil
 	case state.ExitCode > 0:
-		return ContainerStateFailed, nil
+		return tau.ContainerStateFailed, nil
 	default:
 		return 0, fmt.Errorf("unexpected container state: %s", state.Status)
 	}

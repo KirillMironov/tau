@@ -6,7 +6,6 @@ import (
 	"errors"
 
 	"github.com/KirillMironov/tau"
-	"github.com/KirillMironov/tau/runtimes"
 )
 
 type Container struct {
@@ -16,20 +15,20 @@ type Container struct {
 	status  tau.Status
 }
 
-func (c *Container) Create(runtime runtimes.ContainerRuntime) error {
+func (c *Container) Create(runtime tau.ContainerRuntime) error {
 	err := c.validate()
 	if err != nil {
 		return err
 	}
 
-	return runtime.Start(runtimes.Container{
+	return runtime.Start(tau.Container{
 		Name:    c.Name,
 		Image:   c.Image,
 		Command: c.Command,
 	})
 }
 
-func (c *Container) Remove(runtime runtimes.ContainerRuntime) error {
+func (c *Container) Remove(runtime tau.ContainerRuntime) error {
 	err := c.validate()
 	if err != nil {
 		return err

@@ -1,21 +1,16 @@
-//go:generate mockgen -destination=./../pkg/mock/tau.go -package=mock . ContainerRuntime
+//go:generate mockgen -destination=./pkg/mock/tau.go -package=mock . ContainerRuntime
 
-package runtimes
+package tau
 
-import (
-	"errors"
-	"time"
-)
+import "time"
+
+type ContainerState int
 
 const (
 	ContainerStateRunning ContainerState = iota + 1
 	ContainerStateSucceeded
 	ContainerStateFailed
 )
-
-var ErrContainerNotFound = errors.New("container not found")
-
-type ContainerState int
 
 type Container struct {
 	Name    string

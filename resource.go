@@ -1,10 +1,6 @@
 package tau
 
-import (
-	"encoding"
-
-	"github.com/KirillMironov/tau/runtimes"
-)
+import "encoding"
 
 type State string
 
@@ -33,8 +29,8 @@ type Status struct {
 }
 
 type Resource interface {
-	Create(runtimes.ContainerRuntime) error
-	Remove(runtimes.ContainerRuntime) error
+	Create(ContainerRuntime) error
+	Remove(ContainerRuntime) error
 
 	Descriptor() Descriptor
 	Status() Status
