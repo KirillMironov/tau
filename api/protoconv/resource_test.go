@@ -11,13 +11,15 @@ import (
 
 var (
 	container = &resources.Container{
-		Name:    "container",
-		Image:   "image",
-		Command: "command",
+		Container: tau.Container{
+			Name:    "container",
+			Image:   "image",
+			Command: "command",
+		},
 	}
 	pod = &resources.Pod{
 		Name: "pod",
-		Containers: []resources.Container{
+		Containers: []tau.Container{
 			{Name: "container", Image: "image", Command: "command"},
 			{Name: "container2", Image: "image2", Command: "command2"},
 		},

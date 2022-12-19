@@ -26,9 +26,11 @@ func TestUnmarshalByKind(t *testing.T) {
 				command = "sleep 500"
 			`),
 			want: &resources.Container{
-				Name:    "busybox-sleep",
-				Image:   "docker.io/library/busybox:1.35.0",
-				Command: "sleep 500",
+				Container: tau.Container{
+					Name:    "busybox-sleep",
+					Image:   "docker.io/library/busybox:1.35.0",
+					Command: "sleep 500",
+				},
 			},
 			wantErr: false,
 		},
@@ -50,7 +52,7 @@ func TestUnmarshalByKind(t *testing.T) {
 			`),
 			want: &resources.Pod{
 				Name: "busybox",
-				Containers: []resources.Container{
+				Containers: []tau.Container{
 					{
 						Name:    "busybox-sleep",
 						Image:   "docker.io/library/busybox:1.35.0",

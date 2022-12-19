@@ -29,24 +29,3 @@ func ResourceToProto(resource tau.Resource) (*api.Resource, error) {
 		return nil, fmt.Errorf("unexpected resource type: %T", v)
 	}
 }
-
-func DescriptorFromProto(descriptor *api.Descriptor) (tau.Descriptor, error) {
-	kind, err := KindFromProto(descriptor.Kind)
-	if err != nil {
-		return tau.Descriptor{}, err
-	}
-
-	return tau.Descriptor{
-		Name: descriptor.Name,
-		Kind: kind,
-	}, nil
-}
-
-func StatusToProto(status tau.Status) (*api.Status, error) {
-	state, err := StateToProto(status.State)
-	if err != nil {
-		return nil, err
-	}
-
-	return &api.Status{State: state}, nil
-}

@@ -13,8 +13,6 @@ func StateToProto(state tau.State) (api.State, error) {
 		return api.State_STATE_PENDING, nil
 	case tau.StateRunning:
 		return api.State_STATE_RUNNING, nil
-	case tau.StateTerminating:
-		return api.State_STATE_TERMINATING, nil
 	case tau.StateSucceeded:
 		return api.State_STATE_SUCCEEDED, nil
 	case tau.StateFailed:

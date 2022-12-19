@@ -49,7 +49,7 @@ func (g Group) Get() *cobrax.Command {
 				Kind: kind,
 			}
 
-			status, err := g.client.Get(cmd.Context(), request)
+			status, err := g.client.Status(cmd.Context(), request)
 			if err != nil {
 				return err
 			}
@@ -72,7 +72,7 @@ func (g Group) Get() *cobrax.Command {
 						Kind: api.Kind_KIND_CONTAINER,
 					}
 
-					status, err := g.client.Get(cmd.Context(), request)
+					status, err := g.client.Status(cmd.Context(), request)
 					if err != nil {
 						return err
 					}
@@ -95,7 +95,7 @@ func (g Group) Get() *cobrax.Command {
 						Kind: api.Kind_KIND_POD,
 					}
 
-					status, err := g.client.Get(cmd.Context(), request)
+					status, err := g.client.Status(cmd.Context(), request)
 					if err != nil {
 						return err
 					}

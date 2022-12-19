@@ -2,16 +2,6 @@ package tau
 
 import "encoding"
 
-type State string
-
-const (
-	StatePending     State = "pending"
-	StateRunning     State = "running"
-	StateTerminating State = "terminating"
-	StateSucceeded   State = "succeeded"
-	StateFailed      State = "failed"
-)
-
 type Kind string
 
 const (
@@ -19,22 +9,33 @@ const (
 	KindPod       Kind = "pod"
 )
 
+type State string
+
+const (
+	StatePending   State = "pending"
+	StateRunning   State = "running"
+	StateSucceeded State = "succeeded"
+	StateFailed    State = "failed"
+)
+
 type Descriptor struct {
 	Name string
 	Kind Kind
 }
 
-type Status struct {
-	State State
+type StatusEntry struct {
+	Title string
+	Value string
 }
 
 type Resource interface {
 	Create(ContainerRuntime) error
 	Remove(ContainerRuntime) error
+	UpdateStatus(ContainerRuntime) error
 
 	Descriptor() Descriptor
-	Status() Status
-	SetState(State)
+	State() State
+	Status() []StatusEntry
 
 	encoding.BinaryMarshaler
 	encoding.BinaryUnmarshaler

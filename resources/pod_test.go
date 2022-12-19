@@ -4,6 +4,7 @@ import (
 	"errors"
 	"reflect"
 	"testing"
+	"time"
 
 	"github.com/golang/mock/gomock"
 	"github.com/hashicorp/go-multierror"
@@ -66,20 +67,21 @@ func TestPodGob(t *testing.T) {
 	var (
 		want = Pod{
 			Name: "name",
-			Containers: []Container{
+			Containers: []tau.Container{
 				{
 					Name:    "name-1",
 					Image:   "image-1",
 					Command: "command-2",
-					status:  tau.Status{State: tau.StateRunning},
 				},
 				{
-					Name:   "name-2",
-					Image:  "image-2",
-					status: tau.Status{State: tau.StatePending},
+					Name:  "name-2",
+					Image: "image-2",
 				},
 			},
-			status: tau.Status{State: tau.StateSucceeded},
+			state: tau.StateRunning,
+			status: podStatus{
+				CreatedAt: time.Now().Unix(),
+			},
 		}
 		got Pod
 	)
@@ -104,7 +106,7 @@ func setup(t *testing.T) (Pod, *mock.MockContainerRuntime) {
 	var (
 		pod = Pod{
 			Name: "pod",
-			Containers: []Container{
+			Containers: []tau.Container{
 				{Name: "1", Image: "image"},
 				{Name: "2", Image: "image"},
 			},

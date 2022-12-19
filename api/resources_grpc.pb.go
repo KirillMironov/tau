@@ -23,8 +23,8 @@ const _ = grpc.SupportPackageIsVersion7
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type ResourcesClient interface {
 	Create(ctx context.Context, in *Resource, opts ...grpc.CallOption) (*Response, error)
-	Get(ctx context.Context, in *Descriptor, opts ...grpc.CallOption) (*Status, error)
 	Remove(ctx context.Context, in *Descriptor, opts ...grpc.CallOption) (*Response, error)
+	Status(ctx context.Context, in *Descriptor, opts ...grpc.CallOption) (*StatusResponse, error)
 }
 
 type resourcesClient struct {
@@ -44,18 +44,18 @@ func (c *resourcesClient) Create(ctx context.Context, in *Resource, opts ...grpc
 	return out, nil
 }
 
-func (c *resourcesClient) Get(ctx context.Context, in *Descriptor, opts ...grpc.CallOption) (*Status, error) {
-	out := new(Status)
-	err := c.cc.Invoke(ctx, "/api.Resources/Get", in, out, opts...)
+func (c *resourcesClient) Remove(ctx context.Context, in *Descriptor, opts ...grpc.CallOption) (*Response, error) {
+	out := new(Response)
+	err := c.cc.Invoke(ctx, "/api.Resources/Remove", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *resourcesClient) Remove(ctx context.Context, in *Descriptor, opts ...grpc.CallOption) (*Response, error) {
-	out := new(Response)
-	err := c.cc.Invoke(ctx, "/api.Resources/Remove", in, out, opts...)
+func (c *resourcesClient) Status(ctx context.Context, in *Descriptor, opts ...grpc.CallOption) (*StatusResponse, error) {
+	out := new(StatusResponse)
+	err := c.cc.Invoke(ctx, "/api.Resources/Status", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -67,8 +67,8 @@ func (c *resourcesClient) Remove(ctx context.Context, in *Descriptor, opts ...gr
 // for forward compatibility
 type ResourcesServer interface {
 	Create(context.Context, *Resource) (*Response, error)
-	Get(context.Context, *Descriptor) (*Status, error)
 	Remove(context.Context, *Descriptor) (*Response, error)
+	Status(context.Context, *Descriptor) (*StatusResponse, error)
 }
 
 // UnimplementedResourcesServer should be embedded to have forward compatible implementations.
@@ -78,11 +78,11 @@ type UnimplementedResourcesServer struct {
 func (UnimplementedResourcesServer) Create(context.Context, *Resource) (*Response, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Create not implemented")
 }
-func (UnimplementedResourcesServer) Get(context.Context, *Descriptor) (*Status, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method Get not implemented")
-}
 func (UnimplementedResourcesServer) Remove(context.Context, *Descriptor) (*Response, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Remove not implemented")
+}
+func (UnimplementedResourcesServer) Status(context.Context, *Descriptor) (*StatusResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Status not implemented")
 }
 
 // UnsafeResourcesServer may be embedded to opt out of forward compatibility for this service.
@@ -114,24 +114,6 @@ func _Resources_Create_Handler(srv interface{}, ctx context.Context, dec func(in
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Resources_Get_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(Descriptor)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(ResourcesServer).Get(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/api.Resources/Get",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ResourcesServer).Get(ctx, req.(*Descriptor))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
 func _Resources_Remove_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(Descriptor)
 	if err := dec(in); err != nil {
@@ -150,6 +132,24 @@ func _Resources_Remove_Handler(srv interface{}, ctx context.Context, dec func(in
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Resources_Status_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(Descriptor)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ResourcesServer).Status(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/api.Resources/Status",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ResourcesServer).Status(ctx, req.(*Descriptor))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Resources_ServiceDesc is the grpc.ServiceDesc for Resources service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -162,12 +162,12 @@ var Resources_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _Resources_Create_Handler,
 		},
 		{
-			MethodName: "Get",
-			Handler:    _Resources_Get_Handler,
-		},
-		{
 			MethodName: "Remove",
 			Handler:    _Resources_Remove_Handler,
+		},
+		{
+			MethodName: "Status",
+			Handler:    _Resources_Status_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

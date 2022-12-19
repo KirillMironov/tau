@@ -15,7 +15,7 @@ type Resources struct {
 type service interface {
 	Create(tau.Resource) error
 	Remove(tau.Descriptor) error
-	Get(tau.Descriptor) (tau.Status, error)
+	Status(tau.Descriptor) (tau.State, []tau.StatusEntry, error)
 }
 
 func NewResources(service service) *Resources {
@@ -31,20 +31,6 @@ func (r Resources) Create(_ context.Context, resource *api.Resource) (*api.Respo
 	return &api.Response{}, r.service.Create(convertedResource)
 }
 
-func (r Resources) Get(_ context.Context, descriptor *api.Descriptor) (*api.Status, error) {
-	convertedDescriptor, err := protoconv.DescriptorFromProto(descriptor)
-	if err != nil {
-		return nil, err
-	}
-
-	status, err := r.service.Get(convertedDescriptor)
-	if err != nil {
-		return nil, err
-	}
-
-	return protoconv.StatusToProto(status)
-}
-
 func (r Resources) Remove(_ context.Context, descriptor *api.Descriptor) (*api.Response, error) {
 	convertedDescriptor, err := protoconv.DescriptorFromProto(descriptor)
 	if err != nil {
@@ -52,4 +38,26 @@ func (r Resources) Remove(_ context.Context, descriptor *api.Descriptor) (*api.R
 	}
 
 	return &api.Response{}, r.service.Remove(convertedDescriptor)
+}
+
+func (r Resources) Status(_ context.Context, descriptor *api.Descriptor) (*api.StatusResponse, error) {
+	convertedDescriptor, err := protoconv.DescriptorFromProto(descriptor)
+	if err != nil {
+		return nil, err
+	}
+
+	state, status, err := r.service.Status(convertedDescriptor)
+	if err != nil {
+		return nil, err
+	}
+
+	protoState, err := protoconv.StateToProto(state)
+	if err != nil {
+		return nil, err
+	}
+
+	return &api.StatusResponse{
+		State:   protoState,
+		Entries: protoconv.StatusEntriesToProto(status),
+	}, nil
 }

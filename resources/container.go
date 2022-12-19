@@ -4,22 +4,28 @@ import (
 	"bytes"
 	"encoding/gob"
 	"errors"
+	"time"
 
 	"github.com/KirillMironov/tau"
 )
 
+type containerStatus struct {
+	CreatedAt int64
+}
+
 type Container struct {
-	Name    string
-	Image   string
-	Command string
-	status  tau.Status
+	tau.Container
+	state  tau.State
+	status containerStatus
 }
 
 func (c *Container) Create(runtime tau.ContainerRuntime) error {
-	err := c.validate()
-	if err != nil {
+	if err := c.validate(); err != nil {
 		return err
 	}
+
+	c.state = tau.StatePending
+	c.status.CreatedAt = time.Now().Unix()
 
 	return runtime.Start(tau.Container{
 		Name:    c.Name,
@@ -29,12 +35,33 @@ func (c *Container) Create(runtime tau.ContainerRuntime) error {
 }
 
 func (c *Container) Remove(runtime tau.ContainerRuntime) error {
-	err := c.validate()
-	if err != nil {
+	if err := c.validate(); err != nil {
 		return err
 	}
 
 	return runtime.Remove(c.Name)
+}
+
+func (c *Container) UpdateStatus(runtime tau.ContainerRuntime) error {
+	if err := c.validate(); err != nil {
+		return err
+	}
+
+	runtimeState, err := runtime.State(c.Name)
+	if err != nil {
+		return err
+	}
+
+	switch runtimeState {
+	case tau.ContainerStateRunning:
+		c.state = tau.StateRunning
+	case tau.ContainerStateSucceeded:
+		c.state = tau.StateSucceeded
+	case tau.ContainerStateFailed:
+		c.state = tau.StateFailed
+	}
+
+	return nil
 }
 
 func (c *Container) Descriptor() tau.Descriptor {
@@ -44,12 +71,14 @@ func (c *Container) Descriptor() tau.Descriptor {
 	}
 }
 
-func (c *Container) Status() tau.Status {
-	return c.status
+func (c *Container) State() tau.State {
+	return c.state
 }
 
-func (c *Container) SetState(state tau.State) {
-	c.status.State = state
+func (c *Container) Status() []tau.StatusEntry {
+	return []tau.StatusEntry{
+		{Title: "crated at", Value: time.Unix(c.status.CreatedAt, 0).String()},
+	}
 }
 
 func (c *Container) validate() error {
@@ -69,12 +98,14 @@ type containerAlias Container
 // containerGob represents a gob-serializable version of Container.
 type containerGob struct {
 	Container *containerAlias
-	Status    tau.Status
+	State     tau.State
+	Status    containerStatus
 }
 
 func (c *Container) MarshalBinary() ([]byte, error) {
 	container := containerGob{
 		Container: (*containerAlias)(c),
+		State:     c.state,
 		Status:    c.status,
 	}
 
@@ -99,6 +130,7 @@ func (c *Container) UnmarshalBinary(data []byte) error {
 		return err
 	}
 
+	c.state = container.State
 	c.status = container.Status
 
 	return nil
