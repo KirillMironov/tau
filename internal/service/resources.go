@@ -61,7 +61,7 @@ func (r Resources) Status(descriptor tau.Descriptor) (tau.State, []tau.StatusEnt
 
 	resource, err := r.storage.Get(descriptor)
 	if err != nil {
-		return "", nil, fmt.Errorf("failed to get resource: %w", err)
+		return 0, nil, fmt.Errorf("failed to get resource: %w", err)
 	}
 
 	return resource.State(), resource.Status(), nil

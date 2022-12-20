@@ -1,6 +1,9 @@
 package tau
 
-import "encoding"
+import (
+	"encoding"
+	"fmt"
+)
 
 type Kind string
 
@@ -9,14 +12,29 @@ const (
 	KindPod       Kind = "pod"
 )
 
-type State string
+type State int
 
 const (
-	StatePending   State = "pending"
-	StateRunning   State = "running"
-	StateSucceeded State = "succeeded"
-	StateFailed    State = "failed"
+	StateCreating State = iota
+	StateRunning
+	StateSucceeded
+	StateFailed
 )
+
+func (s State) String() string {
+	switch s {
+	case StateCreating:
+		return "creating"
+	case StateRunning:
+		return "running"
+	case StateSucceeded:
+		return "succeeded"
+	case StateFailed:
+		return "failed"
+	default:
+		return fmt.Sprintf("unknown(%d)", s)
+	}
+}
 
 type Descriptor struct {
 	Name string

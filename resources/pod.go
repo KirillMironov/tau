@@ -27,7 +27,6 @@ func (p *Pod) Create(runtime tau.ContainerRuntime) error {
 		return err
 	}
 
-	p.state = tau.StatePending
 	p.status.CreatedAt = time.Now().Unix()
 
 	for _, container := range p.Containers {

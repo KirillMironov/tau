@@ -24,7 +24,6 @@ func (c *Container) Create(runtime tau.ContainerRuntime) error {
 		return err
 	}
 
-	c.state = tau.StatePending
 	c.status.CreatedAt = time.Now().Unix()
 
 	return runtime.Start(tau.Container{

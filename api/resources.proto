@@ -38,11 +38,10 @@ message Descriptor {
 }
 
 enum State {
-  STATE_UNSPECIFIED = 0;
-  STATE_PENDING = 1;
-  STATE_RUNNING = 2;
-  STATE_SUCCEEDED = 3;
-  STATE_FAILED = 4;
+  STATE_CREATING = 0;
+  STATE_RUNNING = 1;
+  STATE_SUCCEEDED = 2;
+  STATE_FAILED = 3;
 }
 
 message StatusEntry {

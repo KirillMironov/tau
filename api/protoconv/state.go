@@ -9,8 +9,8 @@ import (
 
 func StateToProto(state tau.State) (api.State, error) {
 	switch state {
-	case tau.StatePending:
-		return api.State_STATE_PENDING, nil
+	case tau.StateCreating:
+		return api.State_STATE_CREATING, nil
 	case tau.StateRunning:
 		return api.State_STATE_RUNNING, nil
 	case tau.StateSucceeded:
@@ -18,6 +18,6 @@ func StateToProto(state tau.State) (api.State, error) {
 	case tau.StateFailed:
 		return api.State_STATE_FAILED, nil
 	default:
-		return api.State_STATE_UNSPECIFIED, fmt.Errorf("unexpected resource state: %s", state)
+		return 0, fmt.Errorf("unexpected resource state: %s", state)
 	}
 }
