@@ -314,6 +314,11 @@ func newDockerClient(t *testing.T) *client.Client {
 		t.Fatal(err)
 	}
 
+	_, err = dockerClient.Ping(context.Background())
+	if err != nil {
+		t.Fatal(err)
+	}
+
 	t.Cleanup(func() { _ = dockerClient.Close() })
 
 	return dockerClient

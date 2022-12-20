@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"net"
 	"time"
 
@@ -41,6 +42,11 @@ func main() {
 		logger.Fatal(err)
 	}
 	defer dockerClient.Close()
+
+	_, err = dockerClient.Ping(context.Background())
+	if err != nil {
+		logger.Fatal(err)
+	}
 
 	// DI
 	resourcesStorage, err := storage.NewResources(db)
