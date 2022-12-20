@@ -22,6 +22,11 @@ message Container {
 }
 
 message Pod {
+  message Container {
+    string name = 1;
+    string image = 2;
+    string command = 3;
+  }
   string name = 1;
   repeated Container containers = 2;
 }

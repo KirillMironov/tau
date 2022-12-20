@@ -15,11 +15,3 @@ func ContainerFromProto(container *api.Container) *resources.Container {
 		},
 	}
 }
-
-func ContainerToProto(container resources.Container) *api.Container {
-	return &api.Container{
-		Name:    container.Name,
-		Image:   container.Image,
-		Command: container.Command,
-	}
-}

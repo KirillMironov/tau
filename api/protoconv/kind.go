@@ -17,14 +17,3 @@ func KindFromProto(kind api.Kind) (tau.Kind, error) {
 		return "", fmt.Errorf("unexpected resource kind: %s", kind)
 	}
 }
-
-func KindToProto(kind tau.Kind) (api.Kind, error) {
-	switch kind {
-	case tau.KindContainer:
-		return api.Kind_KIND_CONTAINER, nil
-	case tau.KindPod:
-		return api.Kind_KIND_POD, nil
-	default:
-		return api.Kind_KIND_UNSPECIFIED, fmt.Errorf("unexpected resource kind: %s", kind)
-	}
-}

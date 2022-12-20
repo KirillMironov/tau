@@ -1,11 +1,8 @@
-package tomlutil
+package model
 
 import (
 	"reflect"
 	"testing"
-
-	"github.com/KirillMironov/tau"
-	"github.com/KirillMironov/tau/resources"
 )
 
 func TestUnmarshalByKind(t *testing.T) {
@@ -14,7 +11,7 @@ func TestUnmarshalByKind(t *testing.T) {
 	test := []struct {
 		name    string
 		blob    []byte
-		want    tau.Resource
+		want    Resource
 		wantErr bool
 	}{
 		{
@@ -25,12 +22,10 @@ func TestUnmarshalByKind(t *testing.T) {
 				image = "docker.io/library/busybox:1.35.0"
 				command = "sleep 500"
 			`),
-			want: &resources.Container{
-				Container: tau.Container{
-					Name:    "busybox-sleep",
-					Image:   "docker.io/library/busybox:1.35.0",
-					Command: "sleep 500",
-				},
+			want: &Container{
+				Name:    "busybox-sleep",
+				Image:   "docker.io/library/busybox:1.35.0",
+				Command: "sleep 500",
 			},
 			wantErr: false,
 		},
@@ -50,9 +45,9 @@ func TestUnmarshalByKind(t *testing.T) {
 				image = "docker.io/library/busybox:1.35.0"
 				command = "sleep 500"
 			`),
-			want: &resources.Pod{
+			want: &Pod{
 				Name: "busybox",
-				Containers: []tau.Container{
+				Containers: []container{
 					{
 						Name:    "busybox-sleep",
 						Image:   "docker.io/library/busybox:1.35.0",

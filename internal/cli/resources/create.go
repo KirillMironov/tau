@@ -6,9 +6,8 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/KirillMironov/tau/api"
-	"github.com/KirillMironov/tau/api/protoconv"
+	"github.com/KirillMironov/tau/internal/cli/model"
 	"github.com/KirillMironov/tau/pkg/cobrax"
-	"github.com/KirillMironov/tau/pkg/tomlutil"
 )
 
 func (g Group) Create() *cobrax.Command {
@@ -32,17 +31,12 @@ func (g Group) Create() *cobrax.Command {
 				return err
 			}
 
-			resource, err := tomlutil.UnmarshalByKind(data)
+			resource, err := model.UnmarshalByKind(data)
 			if err != nil {
 				return err
 			}
 
-			protoResource, err := protoconv.ResourceToProto(resource)
-			if err != nil {
-				return err
-			}
-
-			_, err = g.client.Create(cmd.Context(), protoResource)
+			_, err = g.client.Create(cmd.Context(), resource.ToProto())
 			return err
 		},
 		Subcommands: []*cobrax.Command{
