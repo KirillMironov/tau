@@ -54,7 +54,11 @@ func (d Docker) Start(container tau.Container) error {
 }
 
 func (d Docker) Stop(containerName string, timeout time.Duration) error {
-	err := d.client.ContainerStop(context.Background(), containerName, &timeout)
+	timeoutSeconds := int(timeout.Seconds())
+
+	options := containertypes.StopOptions{Timeout: &timeoutSeconds}
+
+	err := d.client.ContainerStop(context.Background(), containerName, options)
 	if client.IsErrNotFound(err) {
 		return ErrContainerNotFound
 	}

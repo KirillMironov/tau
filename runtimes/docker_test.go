@@ -5,14 +5,18 @@ package runtimes
 import (
 	"context"
 	"io"
+	"net"
 	"strings"
 	"testing"
 
 	"github.com/docker/docker/api/types"
 	containertypes "github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/client"
+	"github.com/testcontainers/testcontainers-go"
+	"github.com/testcontainers/testcontainers-go/wait"
 
 	"github.com/KirillMironov/tau"
+	"github.com/KirillMironov/tau/pkg/testutil"
 )
 
 const (
@@ -309,12 +313,38 @@ func TestDocker_State(t *testing.T) {
 func newDockerClient(t *testing.T) *client.Client {
 	t.Helper()
 
-	dockerClient, err := client.NewClientWithOpts(client.FromEnv)
+	ctx, cancel := context.WithCancel(context.Background())
+	t.Cleanup(cancel)
+
+	dind := testutil.MustStartTestContainer(t, testcontainers.ContainerRequest{
+		Image:        "docker.io/library/docker:20.10.22-dind-rootless",
+		ExposedPorts: []string{"2375/tcp"},
+		Env:          map[string]string{"DOCKER_TLS_CERTDIR": ""},
+		Privileged:   true,
+		WaitingFor:   wait.ForLog("API listen on [::]:2375"),
+	})
+
+	host, err := dind.Host(ctx)
+	if err != nil {
+		t.Fatalf("failed to get host: %v", err)
+	}
+
+	port, err := dind.MappedPort(ctx, "2375/tcp")
+	if err != nil {
+		t.Fatalf("failed to get mapped port: %v", err)
+	}
+
+	dockerHost := "tcp://" + net.JoinHostPort(host, port.Port())
+
+	dockerClient, err := client.NewClientWithOpts(
+		client.WithHost(dockerHost),
+		client.WithAPIVersionNegotiation(),
+	)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	_, err = dockerClient.Ping(context.Background())
+	_, err = dockerClient.Ping(ctx)
 	if err != nil {
 		t.Fatal(err)
 	}
