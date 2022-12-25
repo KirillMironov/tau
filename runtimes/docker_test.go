@@ -153,7 +153,7 @@ func TestDocker_Stop(t *testing.T) {
 				Command: "",
 			},
 			startContainer: false,
-			wantErr:        ErrContainerNotFound,
+			wantErr:        tau.ErrContainerNotFound,
 		},
 	}
 

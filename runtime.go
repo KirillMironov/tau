@@ -2,7 +2,10 @@
 
 package tau
 
-import "time"
+import (
+	"errors"
+	"time"
+)
 
 type ContainerState int
 
@@ -11,6 +14,8 @@ const (
 	ContainerStateSucceeded
 	ContainerStateFailed
 )
+
+var ErrContainerNotFound = errors.New("container not found")
 
 type Container struct {
 	Name    string

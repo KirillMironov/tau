@@ -9,16 +9,16 @@ import (
 )
 
 type Resources struct {
-	service service
+	service resourcesService
 }
 
-type service interface {
+type resourcesService interface {
 	Create(tau.Resource) error
 	Remove(tau.Descriptor) error
 	Status(tau.Descriptor) (tau.State, []tau.StatusEntry, error)
 }
 
-func NewResources(service service) *Resources {
+func NewResources(service resourcesService) *Resources {
 	return &Resources{service: service}
 }
 

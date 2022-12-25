@@ -15,8 +15,6 @@ import (
 	"github.com/KirillMironov/tau"
 )
 
-var ErrContainerNotFound = errors.New("container not found")
-
 type Docker struct {
 	client *client.Client
 }
@@ -60,7 +58,7 @@ func (d Docker) Stop(containerName string, timeout time.Duration) error {
 
 	err := d.client.ContainerStop(context.Background(), containerName, options)
 	if client.IsErrNotFound(err) {
-		return ErrContainerNotFound
+		return tau.ErrContainerNotFound
 	}
 
 	return err
@@ -77,7 +75,7 @@ func (d Docker) State(containerName string) (tau.ContainerState, error) {
 	status, err := d.client.ContainerInspect(context.Background(), containerName)
 	if err != nil {
 		if client.IsErrNotFound(err) {
-			return 0, ErrContainerNotFound
+			return 0, tau.ErrContainerNotFound
 		}
 		return 0, err
 	}

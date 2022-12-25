@@ -37,7 +37,7 @@ func main() {
 	defer db.Close()
 
 	// Docker client
-	dockerClient, err := client.NewClientWithOpts(client.FromEnv)
+	dockerClient, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
 	if err != nil {
 		logger.Fatal(err)
 	}
@@ -57,13 +57,12 @@ func main() {
 	var (
 		runtime = runtimes.NewDocker(dockerClient)
 
-		controller       = service.NewController(runtime, resourcesStorage, logger)
-		resourcesService = service.NewResources(runtime, resourcesStorage, logger)
-		resourcesHandler = transport.NewResources(resourcesService)
+		resourcesController = service.NewResourcesController(runtime, resourcesStorage, logger, time.Second)
+		resourcesHandler    = transport.NewResources(resourcesController)
 	)
 
 	// Services
-	go controller.Start()
+	go resourcesController.Start()
 
 	// gRPC server
 	listener, err := net.Listen("tcp", address)
