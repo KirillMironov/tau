@@ -1,12 +1,28 @@
 package logger
 
-type Logger interface {
-	Info(args ...interface{})
-	Infof(format string, args ...interface{})
+import (
+	"os"
+	"path/filepath"
+	"time"
 
-	Debug(args ...interface{})
-	Debugf(format string, args ...interface{})
+	"golang.org/x/exp/slog"
+)
 
-	Error(args ...interface{})
-	Errorf(format string, args ...interface{})
+func New(level slog.Level) *slog.Logger {
+	options := slog.HandlerOptions{
+		AddSource: true,
+		Level:     level,
+		ReplaceAttr: func(groups []string, a slog.Attr) slog.Attr {
+			switch a.Key {
+			case slog.TimeKey:
+				a.Value = slog.TimeValue(time.Now().UTC())
+			case slog.SourceKey:
+				a.Value = slog.StringValue(filepath.Base(a.Value.String()))
+			}
+
+			return a
+		},
+	}
+
+	return slog.New(options.NewJSONHandler(os.Stdout))
 }

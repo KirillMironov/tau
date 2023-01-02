@@ -6,15 +6,15 @@ import (
 	"sync"
 	"time"
 
+	"golang.org/x/exp/slog"
+
 	"github.com/KirillMironov/tau"
 	"github.com/KirillMironov/tau/internal/domain"
-	"github.com/KirillMironov/tau/pkg/logger"
 )
 
 type ResourcesController struct {
 	runtime      tau.ContainerRuntime
 	storage      resourcesStorage
-	logger       logger.Logger
 	updateTicker *time.Ticker
 	once         sync.Once
 }
@@ -27,11 +27,10 @@ type resourcesStorage interface {
 	ListByKind(tau.Kind) ([]tau.Resource, error)
 }
 
-func NewResourcesController(runtime tau.ContainerRuntime, storage resourcesStorage, logger logger.Logger, updateInterval time.Duration) *ResourcesController {
+func NewResourcesController(runtime tau.ContainerRuntime, storage resourcesStorage, updateInterval time.Duration) *ResourcesController {
 	return &ResourcesController{
 		runtime:      runtime,
 		storage:      storage,
-		logger:       logger,
 		updateTicker: time.NewTicker(updateInterval),
 	}
 }
@@ -42,14 +41,14 @@ func (rc *ResourcesController) Start() {
 
 		for range rc.updateTicker.C {
 			if err := rc.updateStatuses(); err != nil {
-				rc.logger.Errorf("failed to update statuses: %v", err)
+				slog.Error("failed to update resource statuses", err)
 			}
 		}
 	})
 }
 
 func (rc *ResourcesController) Create(resource tau.Resource) error {
-	rc.logger.Debugf("creating resource %#v", resource)
+	slog.Debug("creating resource", slog.Any("descriptor", resource.Descriptor()))
 
 	err := rc.storage.Put(resource)
 	if err != nil {
@@ -60,7 +59,7 @@ func (rc *ResourcesController) Create(resource tau.Resource) error {
 }
 
 func (rc *ResourcesController) Remove(descriptor tau.Descriptor) error {
-	rc.logger.Debugf("removing resource %#v", descriptor)
+	slog.Debug("removing resource", slog.Any("descriptor", descriptor))
 
 	resource, err := rc.storage.Get(descriptor)
 	if err != nil {
@@ -76,7 +75,7 @@ func (rc *ResourcesController) Remove(descriptor tau.Descriptor) error {
 }
 
 func (rc *ResourcesController) Status(descriptor tau.Descriptor) (tau.State, []tau.StatusEntry, error) {
-	rc.logger.Debugf("getting status of resource %#v", descriptor)
+	slog.Debug("getting status of resource", slog.Any("descriptor", descriptor))
 
 	resource, err := rc.storage.Get(descriptor)
 	if err != nil {
@@ -101,13 +100,13 @@ func (rc *ResourcesController) updateStatuses() error {
 
 			if err := resource.UpdateStatus(rc.runtime); err != nil {
 				if !errors.Is(err, tau.ErrContainerNotFound) {
-					rc.logger.Errorf("failed to update status for resource %+v: %v", resource.Descriptor(), err)
+					slog.Error("failed to update resource status", err, slog.Any("descriptor", resource.Descriptor()))
 				}
 				return
 			}
 
 			if err := rc.storage.Put(resource); err != nil {
-				rc.logger.Errorf("failed to put resource %+v: %v", resource.Descriptor(), err)
+				slog.Error("failed to put resource", err, slog.Any("descriptor", resource.Descriptor()))
 				return
 			}
 		}(resource)
