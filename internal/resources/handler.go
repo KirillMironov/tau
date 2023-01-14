@@ -1,4 +1,4 @@
-package transport
+package resources
 
 import (
 	"context"
@@ -8,45 +8,45 @@ import (
 	"github.com/KirillMironov/tau/api/protoconv"
 )
 
-type Resources struct {
-	service resourcesService
+type Handler struct {
+	service service
 }
 
-type resourcesService interface {
+type service interface {
 	Create(tau.Resource) error
 	Remove(tau.Descriptor) error
 	Status(tau.Descriptor) (tau.State, []tau.StatusEntry, error)
 }
 
-func NewResources(service resourcesService) *Resources {
-	return &Resources{service: service}
+func NewHandler(service service) *Handler {
+	return &Handler{service: service}
 }
 
-func (r Resources) Create(_ context.Context, resource *api.Resource) (*api.Response, error) {
+func (h Handler) Create(_ context.Context, resource *api.Resource) (*api.Response, error) {
 	convertedResource, err := protoconv.ResourceFromProto(resource)
 	if err != nil {
 		return nil, err
 	}
 
-	return &api.Response{}, r.service.Create(convertedResource)
+	return &api.Response{}, h.service.Create(convertedResource)
 }
 
-func (r Resources) Remove(_ context.Context, descriptor *api.Descriptor) (*api.Response, error) {
+func (h Handler) Remove(_ context.Context, descriptor *api.Descriptor) (*api.Response, error) {
 	convertedDescriptor, err := protoconv.DescriptorFromProto(descriptor)
 	if err != nil {
 		return nil, err
 	}
 
-	return &api.Response{}, r.service.Remove(convertedDescriptor)
+	return &api.Response{}, h.service.Remove(convertedDescriptor)
 }
 
-func (r Resources) Status(_ context.Context, descriptor *api.Descriptor) (*api.StatusResponse, error) {
+func (h Handler) Status(_ context.Context, descriptor *api.Descriptor) (*api.StatusResponse, error) {
 	convertedDescriptor, err := protoconv.DescriptorFromProto(descriptor)
 	if err != nil {
 		return nil, err
 	}
 
-	state, status, err := r.service.Status(convertedDescriptor)
+	state, status, err := h.service.Status(convertedDescriptor)
 	if err != nil {
 		return nil, err
 	}

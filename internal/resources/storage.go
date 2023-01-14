@@ -1,4 +1,4 @@
-package storage
+package resources
 
 import (
 	"fmt"
@@ -6,29 +6,28 @@ import (
 	"github.com/boltdb/bolt"
 
 	"github.com/KirillMironov/tau"
-	"github.com/KirillMironov/tau/internal/domain"
 	"github.com/KirillMironov/tau/resources"
 )
 
 const resourcesBucket = "resources"
 
-type Resources struct {
+type Storage struct {
 	db *bolt.DB
 }
 
-func NewResources(db *bolt.DB) (*Resources, error) {
+func NewStorage(db *bolt.DB) (*Storage, error) {
 	err := db.Update(func(tx *bolt.Tx) error {
 		_, err := tx.CreateBucketIfNotExists([]byte(resourcesBucket))
 		return err
 	})
 
-	return &Resources{db: db}, err
+	return &Storage{db: db}, err
 }
 
-func (r Resources) Put(resource tau.Resource) error {
+func (s Storage) Put(resource tau.Resource) error {
 	descriptor := resource.Descriptor()
 
-	return r.db.Update(func(tx *bolt.Tx) error {
+	return s.db.Update(func(tx *bolt.Tx) error {
 		root := tx.Bucket([]byte(resourcesBucket))
 		if root == nil {
 			return fmt.Errorf("bucket %q not found", resourcesBucket)
@@ -48,13 +47,13 @@ func (r Resources) Put(resource tau.Resource) error {
 	})
 }
 
-func (r Resources) Get(descriptor tau.Descriptor) (tau.Resource, error) {
+func (s Storage) Get(descriptor tau.Descriptor) (tau.Resource, error) {
 	resource, err := resources.ResourceByKind(descriptor.Kind)
 	if err != nil {
 		return nil, err
 	}
 
-	return resource, r.db.View(func(tx *bolt.Tx) error {
+	return resource, s.db.View(func(tx *bolt.Tx) error {
 		root := tx.Bucket([]byte(resourcesBucket))
 		if root == nil {
 			return fmt.Errorf("bucket %q not found", resourcesBucket)
@@ -74,8 +73,8 @@ func (r Resources) Get(descriptor tau.Descriptor) (tau.Resource, error) {
 	})
 }
 
-func (r Resources) Delete(descriptor tau.Descriptor) error {
-	return r.db.Update(func(tx *bolt.Tx) error {
+func (s Storage) Delete(descriptor tau.Descriptor) error {
+	return s.db.Update(func(tx *bolt.Tx) error {
 		root := tx.Bucket([]byte(resourcesBucket))
 		if root == nil {
 			return fmt.Errorf("bucket %q not found", resourcesBucket)
@@ -90,10 +89,10 @@ func (r Resources) Delete(descriptor tau.Descriptor) error {
 	})
 }
 
-func (r Resources) List() ([]tau.Resource, error) {
+func (s Storage) List() ([]tau.Resource, error) {
 	var result []tau.Resource
 
-	err := r.db.View(func(tx *bolt.Tx) error {
+	err := s.db.View(func(tx *bolt.Tx) error {
 		root := tx.Bucket([]byte(resourcesBucket))
 		if root == nil {
 			return fmt.Errorf("bucket %q not found", resourcesBucket)
@@ -126,16 +125,16 @@ func (r Resources) List() ([]tau.Resource, error) {
 	}
 
 	if len(result) == 0 {
-		return nil, domain.ErrNoResources
+		return nil, errNoResources
 	}
 
 	return result, nil
 }
 
-func (r Resources) ListByKind(kind tau.Kind) ([]tau.Resource, error) {
+func (s Storage) ListByKind(kind tau.Kind) ([]tau.Resource, error) {
 	var result []tau.Resource
 
-	err := r.db.View(func(tx *bolt.Tx) error {
+	err := s.db.View(func(tx *bolt.Tx) error {
 		root := tx.Bucket([]byte(resourcesBucket))
 		if root == nil {
 			return fmt.Errorf("bucket %q not found", resourcesBucket)
@@ -166,7 +165,7 @@ func (r Resources) ListByKind(kind tau.Kind) ([]tau.Resource, error) {
 	}
 
 	if len(result) == 0 {
-		return nil, domain.ErrNoResources
+		return nil, errNoResources
 	}
 
 	return result, nil

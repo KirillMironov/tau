@@ -12,9 +12,7 @@ import (
 	"google.golang.org/grpc"
 
 	"github.com/KirillMironov/tau/api"
-	"github.com/KirillMironov/tau/internal/service"
-	"github.com/KirillMironov/tau/internal/storage"
-	"github.com/KirillMironov/tau/internal/transport"
+	"github.com/KirillMironov/tau/internal/resources"
 	"github.com/KirillMironov/tau/pkg/logger"
 	"github.com/KirillMironov/tau/runtimes"
 )
@@ -45,7 +43,7 @@ func main() {
 	}
 
 	// DI
-	resourcesStorage, err := storage.NewResources(db)
+	resourcesStorage, err := resources.NewStorage(db)
 	if err != nil {
 		fatal(err)
 	}
@@ -53,12 +51,9 @@ func main() {
 	var (
 		runtime = runtimes.NewDocker(dockerClient)
 
-		resourcesController = service.NewResourcesController(runtime, resourcesStorage, time.Second)
-		resourcesHandler    = transport.NewResources(resourcesController)
+		resourcesService = resources.NewService(runtime, resourcesStorage, time.Second)
+		resourcesHandler = resources.NewHandler(resourcesService)
 	)
-
-	// Services
-	go resourcesController.Start()
 
 	// gRPC server
 	listener, err := net.Listen("tcp", address)
