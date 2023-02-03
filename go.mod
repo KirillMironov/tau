@@ -1,13 +1,12 @@
 module github.com/KirillMironov/tau
 
-go 1.19
+go 1.20
 
 require (
 	github.com/BurntSushi/toml v1.2.1
 	github.com/boltdb/bolt v1.3.1
 	github.com/docker/docker v20.10.22+incompatible
 	github.com/golang/mock v1.6.0
-	github.com/hashicorp/go-multierror v1.1.1
 	github.com/spf13/cobra v1.6.1
 	github.com/testcontainers/testcontainers-go v0.17.0
 	golang.org/x/exp v0.0.0-20221230185412-738e83a70c30
@@ -26,7 +25,6 @@ require (
 	github.com/gogo/protobuf v1.3.2 // indirect
 	github.com/golang/protobuf v1.5.2 // indirect
 	github.com/google/uuid v1.3.0 // indirect
-	github.com/hashicorp/errwrap v1.1.0 // indirect
 	github.com/inconshreveable/mousetrap v1.0.1 // indirect
 	github.com/klauspost/compress v1.11.13 // indirect
 	github.com/magiconair/properties v1.8.7 // indirect

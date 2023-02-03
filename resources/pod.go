@@ -6,8 +6,6 @@ import (
 	"errors"
 	"time"
 
-	"github.com/hashicorp/go-multierror"
-
 	"github.com/KirillMironov/tau"
 )
 
@@ -47,7 +45,7 @@ func (p *Pod) Remove(runtime tau.ContainerRuntime) error {
 	var err error
 
 	for _, container := range p.Containers {
-		err = multierror.Append(err, runtime.Remove(container.Name))
+		err = errors.Join(err, runtime.Remove(container.Name))
 	}
 
 	return err

@@ -7,7 +7,6 @@ import (
 	"time"
 
 	"github.com/golang/mock/gomock"
-	"github.com/hashicorp/go-multierror"
 
 	"github.com/KirillMironov/tau"
 	"github.com/KirillMironov/tau/pkg/mock"
@@ -38,26 +37,34 @@ func TestPod_Create(t *testing.T) {
 func TestPod_Remove(t *testing.T) {
 	t.Parallel()
 
+	e1 := errors.New("error 1")
+	e2 := errors.New("error 2")
+
 	pod, runtime := setup(t)
 
 	runtime.
 		EXPECT().
 		Remove(gomock.Any()).
-		Return(errors.New("error")).
-		Times(2)
+		Return(e1).
+		Times(1)
+
+	runtime.
+		EXPECT().
+		Remove(gomock.Any()).
+		Return(e2).
+		Times(1)
 
 	err := pod.Remove(runtime)
 	if err == nil {
 		t.Fatalf("err = %v, want not nil", err)
 	}
 
-	e, ok := err.(*multierror.Error)
-	if !ok {
-		t.Fatalf("err type = %T, want *multierror.Error", err)
+	if !errors.Is(err, e1) {
+		t.Fatalf("err = %v, want %v", err, e1)
 	}
 
-	if len(e.Errors) != 2 {
-		t.Fatalf("len(e.Errors) = %d, want 2", len(e.Errors))
+	if !errors.Is(err, e2) {
+		t.Fatalf("err = %v, want %v", err, e2)
 	}
 }
 
