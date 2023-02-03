@@ -5,7 +5,7 @@ go 1.20
 require (
 	github.com/BurntSushi/toml v1.2.1
 	github.com/boltdb/bolt v1.3.1
-	github.com/docker/docker v20.10.22+incompatible
+	github.com/docker/docker v23.0.0+incompatible
 	github.com/golang/mock v1.6.0
 	github.com/spf13/cobra v1.6.1
 	github.com/testcontainers/testcontainers-go v0.17.0
@@ -46,5 +46,3 @@ require (
 	google.golang.org/genproto v0.0.0-20221114212237-e4508ebdbee1 // indirect
 	gotest.tools/v3 v3.2.0 // indirect
 )
-
-replace github.com/docker/docker => github.com/docker/docker v20.10.3-0.20221021173910-5aac513617f0+incompatible // 22.06 branch
